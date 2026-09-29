@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CommunIA — 24h By Webcup</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">Commun<span>IA</span></div>
+  <nav class="topbar-actions">
+    <button id="btn-connexion" class="btn-ghost">Connexion</button>
+    <button id="btn-inscription" class="btn-plein">Rejoindre</button>
+    <button id="btn-deconnexion" class="btn-ghost hidden">Déconnexion</button>
+  </nav>
+</header>
+<main>
+  <section id="ecran-accueil" class="hero">
+    <h1>La communauté francophone de l'océan Indien</h1>
+    <p class="hero-sub">Partagez, échangez et connectez-vous avec votre communauté.</p>
+    <button id="btn-commencer" class="btn-plein btn-large">Rejoindre</button>
+  </section>
+  <div id="modale-auth" class="modale hidden">
+    <div class="modale-contenu">
+      <button class="modale-fermer" id="fermer-modale">&times;</button>
+      <div id="formulaire-connexion">
+        <h2>Connexion</h2>
+        <form id="form-login">
+          <label>Email<input type="email" name="email" required></label>
+          <label>Mot de passe<input type="password" name="mot_de_passe" required></label>
+          <p class="erreur" id="erreur-login"></p>
+          <button type="submit" class="btn-plein">Se connecter</button>
+        </form>
+      </div>
+      <div id="formulaire-inscription" class="hidden">
+        <h2>Créer un compte</h2>
+        <form id="form-register">
+          <label>Nom<input type="text" name="nom" required></label>
+          <label>Email<input type="email" name="email" required></label>
+          <label>Mot de passe<input type="password" name="mot_de_passe" required minlength="6"></label>
+          <p class="erreur" id="erreur-register"></p>
+          <button type="submit" class="btn-plein">S'inscrire</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <section id="ecran-dashboard" class="dashboard hidden">
+    <div class="dashboard-header">
+      <h2>Bonjour, <span id="nom-utilisateur"></span></h2>
+      <button id="btn-nouveau" class="btn-plein">+ Nouveau post</button>
+    </div>
+    <div id="liste-items" class="liste-items"></div>
+  </section>
+  <div id="modale-item" class="modale hidden">
+    <div class="modale-contenu">
+      <button class="modale-fermer" id="fermer-modale-item">&times;</button>
+      <h2>Nouveau post</h2>
+      <form id="form-item">
+        <label>Titre<input type="text" name="titre" required></label>
+        <label>Contenu<textarea name="contenu" rows="4" required></textarea></label>
+        <label>Catégorie<input type="text" name="categorie" placeholder="General, Emploi, Événement..."></label>
+        <button type="submit" class="btn-plein">Publier</button>
+      </form>
+    </div>
+  </div>
+</main>
+<footer><p>CommunIA — 24h By Webcup 2026</p></footer>
+<script src="/js/app.js"></script>
+</body>
+</html>
