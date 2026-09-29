@@ -1,5 +1,6 @@
 {
   "build": "npm install",
   "start": "node server.js",
-  "node": "20"
+  "node": "20",
+  "functions": false
 }
