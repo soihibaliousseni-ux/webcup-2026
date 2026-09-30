@@ -14,6 +14,10 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+app.use((req, res, next) => {
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  next();
+});
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes API
@@ -21,6 +25,7 @@ app.use('/api/auth', authRoutes);
 // app.use('/api/items', itemsRoutes);
 app.use('/api/posts', require('./api/posts'));
 app.use('/api/produits', require('./api/produits'));
+app.use('/api/commandes', require('./api/commandes'));
 
 // Healthcheck rapide (utile pour vérifier le déploiement en 2 secondes)
 app.get('/api/health', (req, res) => {
