@@ -1,4 +1,5 @@
 const express = require('express');
+const axios = require('axios');
 const router = express.Router();
 
 const LANGUES = {
@@ -60,35 +61,33 @@ router.post('/', async (req, res) => {
     }
 
     if (langue_cible === 'zdj') {
-      return res.json({
-        texte_original: texte,
-        traduction: `[Shimaoré Bêta] ${texte}`,
-        langue: 'Shimaoré',
-        beta: true
-      });
+      return res.json({ texte_original: texte, traduction: `[Shimaoré Bêta] ${texte}`, langue: 'Shimaoré', beta: true });
     }
 
     if (langue_cible === 'buc') {
-      return res.json({
-        texte_original: texte,
-        traduction: `[Kibushi Bêta] ${texte}`,
-        langue: 'Kibushi',
-        beta: true
-      });
+      return res.json({ texte_original: texte, traduction: `[Kibushi Bêta] ${texte}`, langue: 'Kibushi', beta: true });
     }
 
-    const { translate } = await import('@vitalets/google-translate-api');
-    const resultat = await translate(texte, { from: 'fr', to: langue_cible });
+    const response = await axios.post('https://libretranslate.com/translate', {
+      q: texte,
+      source: 'fr',
+      target: langue_cible,
+      format: 'text',
+      api_key: ''
+    }, {
+      headers: { 'Content-Type': 'application/json' },
+      timeout: 5000
+    });
 
     res.json({
       texte_original: texte,
-      traduction: resultat.text,
+      traduction: response.data.translatedText,
       langue: LANGUES[langue_cible] || langue_cible,
       beta: false
     });
 
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.status(500).json({ erreur: 'Erreur de traduction' });
   }
 });
