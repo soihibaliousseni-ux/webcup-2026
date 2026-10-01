@@ -3,23 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CommunIA — 24h By Webcup</title>
+<title>Marché Mayotte — 24h By Webcup</title>
 <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 <header class="topbar">
-  <div class="brand">Commun<span>IA</span></div>
+  <div class="brand">Marché<span>Mayotte</span></div>
   <nav class="topbar-actions">
     <button id="btn-connexion" class="btn-ghost">Connexion</button>
-    <button id="btn-inscription" class="btn-plein">Rejoindre</button>
+    <button id="btn-inscription" class="btn-plein">Créer un compte</button>
     <button id="btn-deconnexion" class="btn-ghost hidden">Déconnexion</button>
   </nav>
 </header>
 <main>
   <section id="ecran-accueil" class="hero">
-    <h1>La communauté francophone de l'océan Indien</h1>
-    <p class="hero-sub">Partagez, échangez et connectez-vous avec votre communauté.</p>
-    <button id="btn-commencer" class="btn-plein btn-large">Rejoindre</button>
+    <h1>Le marché des vendeurs de Mayotte</h1>
+    <p class="hero-sub">Achetez directement auprès des vendeurs locaux.</p>
+    <button id="btn-commencer" class="btn-plein btn-large">Commencer</button>
   </section>
   <div id="modale-auth" class="modale hidden">
     <div class="modale-contenu">
@@ -34,7 +34,7 @@
         </form>
       </div>
       <div id="formulaire-inscription" class="hidden">
-        <h2>Créer un compte</h2>
+        <h2>Créer un compte vendeur</h2>
         <form id="form-register">
           <label>Nom<input type="text" name="nom" required></label>
           <label>Email<input type="email" name="email" required></label>
@@ -48,24 +48,26 @@
   <section id="ecran-dashboard" class="dashboard hidden">
     <div class="dashboard-header">
       <h2>Bonjour, <span id="nom-utilisateur"></span></h2>
-      <button id="btn-nouveau" class="btn-plein">+ Nouveau post</button>
+      <button id="btn-nouveau" class="btn-plein">+ Ajouter un produit</button>
     </div>
     <div id="liste-items" class="liste-items"></div>
   </section>
   <div id="modale-item" class="modale hidden">
     <div class="modale-contenu">
       <button class="modale-fermer" id="fermer-modale-item">&times;</button>
-      <h2>Nouveau post</h2>
+      <h2>Nouveau produit</h2>
       <form id="form-item">
-        <label>Titre<input type="text" name="titre" required></label>
-        <label>Contenu<textarea name="contenu" rows="4" required></textarea></label>
-        <label>Catégorie<input type="text" name="categorie" placeholder="General, Emploi, Événement..."></label>
-        <button type="submit" class="btn-plein">Publier</button>
+        <label>Nom du produit<input type="text" name="nom" required></label>
+        <label>Description<textarea name="description" rows="2"></textarea></label>
+        <label>Prix (€)<input type="number" name="prix" step="0.01" required></label>
+        <label>Stock<input type="number" name="stock" value="1"></label>
+        <label>Catégorie<input type="text" name="categorie" placeholder="Alimentation, Artisanat..."></label>
+        <button type="submit" class="btn-plein">Enregistrer</button>
       </form>
     </div>
   </div>
 </main>
-<footer><p>CommunIA — 24h By Webcup 2026</p></footer>
+<footer><p>Marché Mayotte — 24h By Webcup 2026</p></footer>
 <script src="/js/app.js"></script>
 </body>
 </html>

@@ -14,18 +14,9 @@ const btnCommencer = document.getElementById('btn-commencer');
 function afficherToast(message, type = 'succes') {
   const toast = document.createElement('div');
   toast.textContent = message;
-  toast.style.cssText = `
-    position:fixed;bottom:2rem;right:2rem;padding:1rem 1.5rem;
-    background:${type === 'succes' ? '#1c6b7a' : '#c0392b'};
-    color:white;border-radius:10px;font-family:Inter,sans-serif;
-    font-size:0.95rem;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.2);
-  `;
+  toast.style.cssText = `position:fixed;bottom:2rem;right:2rem;padding:1rem 1.5rem;background:${type === 'succes' ? '#1c6b7a' : '#c0392b'};color:white;border-radius:10px;font-family:Inter,sans-serif;font-size:0.95rem;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,0.2);`;
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 3000);
-}
-
-function afficherSpinner(liste) {
-  liste.innerHTML = '<p class="etat-vide">⏳ Chargement...</p>';
 }
 
 function majAffichage() {
@@ -36,7 +27,7 @@ function majAffichage() {
     btnInscription.classList.add('hidden');
     btnDeconnexion.classList.remove('hidden');
     document.getElementById('nom-utilisateur').textContent = utilisateur.nom;
-    chargerPosts();
+    chargerProduits();
   } else {
     elAccueil.classList.remove('hidden');
     elDashboard.classList.add('hidden');
@@ -100,25 +91,25 @@ document.getElementById('form-register').addEventListener('submit', async (e) =>
   } catch { erreurEl.textContent = 'Erreur serveur'; }
 });
 
-async function chargerPosts() {
+async function chargerProduits() {
   const liste = document.getElementById('liste-items');
-  afficherSpinner(liste);
+  liste.innerHTML = '<p class="etat-vide">⏳ Chargement...</p>';
   try {
-    const res = await fetch(`${API}/posts`);
-    const posts = await res.json();
-    if (posts.length === 0) {
-      liste.innerHTML = '<p class="etat-vide">Aucun post pour le moment. Soyez le premier !</p>';
+    const res = await fetch(`${API}/produits`);
+    const produits = await res.json();
+    if (produits.length === 0) {
+      liste.innerHTML = '<p class="etat-vide">Aucun produit pour le moment. Ajoutez le premier.</p>';
       return;
     }
-    liste.innerHTML = posts.map(p => `
+    liste.innerHTML = produits.map(p => `
       <div class="item-carte">
         <div>
-          <h3>${echapper(p.titre)}</h3>
-          <p>${echapper(p.contenu)}</p>
-          <p style="font-size:0.8rem;color:#888">Par ${echapper(p.auteur)} — ${echapper(p.categorie)}</p>
+          <h3>${echapper(p.nom)}</h3>
+          <p>${echapper(p.description || '')} — <strong>${p.prix} €</strong> — Stock: ${p.stock}</p>
+          <p style="font-size:0.8rem;color:#888">Vendeur: ${echapper(p.vendeur)} | ${echapper(p.categorie || '')}</p>
         </div>
         <div class="item-actions">
-          <button onclick="supprimerPost(${p.id}, this)">Supprimer</button>
+          <button onclick="supprimerProduit(${p.id}, this)">Supprimer</button>
         </div>
       </div>
     `).join('');
@@ -137,25 +128,23 @@ document.getElementById('form-item').addEventListener('submit', async (e) => {
   const btn = e.target.querySelector('button[type=submit]');
   btn.textContent = '...'; btn.disabled = true;
   try {
-    const res = await fetch(`${API}/posts`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(data) });
+    const res = await fetch(`${API}/produits`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(data) });
     if (res.ok) {
       modaleItem.classList.add('hidden');
-      afficherToast('Post publié avec succès !');
-      chargerPosts();
-    } else {
-      afficherToast('Erreur lors de la publication', 'erreur');
+      afficherToast('Produit ajouté !');
+      chargerProduits();
     }
   } catch { afficherToast('Erreur serveur', 'erreur'); }
-  finally { btn.textContent = 'Publier'; btn.disabled = false; }
+  finally { btn.textContent = 'Enregistrer'; btn.disabled = false; }
 });
 
-async function supprimerPost(id, btn) {
-  if (!confirm('Supprimer ce post ?')) return;
+async function supprimerProduit(id, btn) {
+  if (!confirm('Supprimer ce produit ?')) return;
   btn.textContent = '...'; btn.disabled = true;
   try {
-    await fetch(`${API}/posts/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
-    afficherToast('Post supprimé');
-    chargerPosts();
+    await fetch(`${API}/produits/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    afficherToast('Produit supprimé');
+    chargerProduits();
   } catch { afficherToast('Erreur', 'erreur'); }
 }
 
