@@ -202,5 +202,46 @@ function echapper(texte) {
   div.textContent = texte;
   return div.innerHTML;
 }
+// Sélecteur de langue
+async function chargerLangues() {
+  try {
+    const res = await fetch(`${API}/traduction/langues`);
+    const langues = await res.json();
+    const select = document.getElementById('selecteur-langue');
+    Object.entries(langues).forEach(([code, nom]) => {
+      const option = document.createElement('option');
+      option.value = code;
+      option.textContent = nom;
+      select.appendChild(option);
+    });
+    select.addEventListener('change', async (e) => {
+      const langue = e.target.value;
+      if (!langue) return;
+      await traduireInterface(langue);
+    });
+  } catch (err) {
+    console.error('Erreur chargement langues', err);
+  }
+}
+
+async function traduireInterface(langue) {
+  const elements = document.querySelectorAll('h1, h2, p, button, label');
+  for (const el of elements) {
+    const texte = el.textContent.trim();
+    if (!texte || texte.length < 2) continue;
+    try {
+      const res = await fetch(`${API}/traduction`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ texte, langue_cible: langue })
+      });
+      const json = await res.json();
+      if (json.traduction) el.textContent = json.traduction;
+    } catch {}
+  }
+  afficherToast(`Interface traduite en ${langue} !`);
+}
+
+chargerLangues();
 
 majAffichage();
