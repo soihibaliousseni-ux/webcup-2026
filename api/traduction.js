@@ -78,7 +78,7 @@ router.post('/', async (req, res) => {
     }
 
     const { translate } = await import('@vitalets/google-translate-api');
-    const resultat = await translate(texte, { to: langue_cible });
+    const resultat = await translate(texte, { from: 'fr', to: langue_cible });
 
     res.json({
       texte_original: texte,
