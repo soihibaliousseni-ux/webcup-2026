@@ -23,6 +23,7 @@ function majAffichage() {
   if (token && utilisateur) {
     elAccueil.classList.add('hidden');
     elDashboard.classList.remove('hidden');
+    document.getElementById('section-publique').classList.add('hidden');
     btnConnexion.classList.add('hidden');
     btnInscription.classList.add('hidden');
     btnDeconnexion.classList.remove('hidden');
@@ -31,9 +32,11 @@ function majAffichage() {
   } else {
     elAccueil.classList.remove('hidden');
     elDashboard.classList.add('hidden');
+    document.getElementById('section-publique').classList.remove('hidden');
     btnConnexion.classList.remove('hidden');
     btnInscription.classList.remove('hidden');
     btnDeconnexion.classList.add('hidden');
+    chargerProduitsPublics();
   }
 }
 
@@ -114,6 +117,52 @@ async function chargerProduits() {
       </div>
     `).join('');
   } catch { liste.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
+}
+
+async function chargerProduitsPublics() {
+  const liste = document.getElementById('liste-publique');
+  if (!liste) return;
+  liste.innerHTML = '<p class="etat-vide">⏳ Chargement...</p>';
+  try {
+    const res = await fetch(`${API}/produits`);
+    const produits = await res.json();
+    if (produits.length === 0) {
+      liste.innerHTML = '<p class="etat-vide">Aucun produit disponible pour le moment.</p>';
+      return;
+    }
+    liste.innerHTML = produits.map(p => `
+      <div class="item-carte">
+        <div>
+          <h3>${echapper(p.nom)}</h3>
+          <p>${echapper(p.description || '')} — <strong>${p.prix} €</strong> — Stock: ${p.stock}</p>
+          <p style="font-size:0.8rem;color:#888">Vendeur: ${echapper(p.vendeur)} | ${echapper(p.categorie || '')}</p>
+        </div>
+        <div class="item-actions">
+          <button onclick="commanderProduit(${p.id}, '${echapper(p.nom)}', ${p.prix})">Commander</button>
+        </div>
+      </div>
+    `).join('');
+  } catch { liste.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
+}
+
+async function commanderProduit(id, nom, prix) {
+  const acheteur_nom = prompt(`Votre nom pour commander "${nom}" à ${prix} € ?`);
+  if (!acheteur_nom) return;
+  const acheteur_email = prompt('Votre email pour recevoir la confirmation ?');
+  try {
+    const res = await fetch(`${API}/commandes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ produit_id: id, acheteur_nom, acheteur_email, quantite: 1 })
+    });
+    const json = await res.json();
+    if (res.ok) {
+      afficherToast(`✅ Commande confirmée ! Total: ${json.total} €`);
+      chargerProduitsPublics();
+    } else {
+      afficherToast(json.erreur, 'erreur');
+    }
+  } catch { afficherToast('Erreur serveur', 'erreur'); }
 }
 
 document.getElementById('btn-nouveau').onclick = () => {
