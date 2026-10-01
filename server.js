@@ -23,6 +23,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/posts', require('./api/posts'));
 app.use('/api/produits', require('./api/produits'));
 app.use('/api/commandes', require('./api/commandes'));
+app.use('/api/traduction', require('./api/traduction'));
 
 // Healthcheck rapide (utile pour vérifier le déploiement en 2 secondes)
 app.get('/api/health', (req, res) => {
