@@ -68,23 +68,19 @@ router.post('/', async (req, res) => {
       return res.json({ texte_original: texte, traduction: `[Kibushi Bêta] ${texte}`, langue: 'Kibushi', beta: true });
     }
 
-    const response = await axios.post('https://libretranslate.com/translate', {
-      q: texte,
-      source: 'fr',
-      target: langue_cible,
-      format: 'text',
-      api_key: ''
-    }, {
-      headers: { 'Content-Type': 'application/json' },
-      timeout: 5000
-    });
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(texte)}&langpair=fr|${langue_cible}`;
+    const response = await axios.get(url, { timeout: 5000 });
 
-    res.json({
-      texte_original: texte,
-      traduction: response.data.translatedText,
-      langue: LANGUES[langue_cible] || langue_cible,
-      beta: false
-    });
+    if (response.data && response.data.responseData) {
+      res.json({
+        texte_original: texte,
+        traduction: response.data.responseData.translatedText,
+        langue: LANGUES[langue_cible] || langue_cible,
+        beta: false
+      });
+    } else {
+      res.status(500).json({ erreur: 'Erreur de traduction' });
+    }
 
   } catch (err) {
     console.error(err.message);
