@@ -15,6 +15,13 @@
     <button id="btn-deconnexion" class="btn-ghost hidden">Déconnexion</button>
   </nav>
 </header>
+<main>
+  <section id="ecran-accueil" class="hero">
+    <h1>Le marché des vendeurs de Mayotte</h1>
+    <p class="hero-sub">Achetez directement auprès des vendeurs locaux.</p>
+    <button id="btn-commencer" class="btn-plein btn-large">Vendre mes produits</button>
+  </section>
+
   <!-- SECTION PUBLIQUE — visible sans connexion -->
   <section id="section-publique" class="dashboard">
     <div class="dashboard-header">
@@ -22,12 +29,7 @@
     </div>
     <div id="liste-publique" class="liste-items"></div>
   </section>
-<main>
-  <section id="ecran-accueil" class="hero">
-    <h1>Le marché des vendeurs de Mayotte</h1>
-    <p class="hero-sub">Achetez directement auprès des vendeurs locaux.</p>
-    <button id="btn-commencer" class="btn-plein btn-large">Commencer</button>
-  </section>
+
   <div id="modale-auth" class="modale hidden">
     <div class="modale-contenu">
       <button class="modale-fermer" id="fermer-modale">&times;</button>
@@ -52,6 +54,7 @@
       </div>
     </div>
   </div>
+
   <section id="ecran-dashboard" class="dashboard hidden">
     <div class="dashboard-header">
       <h2>Bonjour, <span id="nom-utilisateur"></span></h2>
@@ -59,6 +62,7 @@
     </div>
     <div id="liste-items" class="liste-items"></div>
   </section>
+
   <div id="modale-item" class="modale hidden">
     <div class="modale-contenu">
       <button class="modale-fermer" id="fermer-modale-item">&times;</button>
