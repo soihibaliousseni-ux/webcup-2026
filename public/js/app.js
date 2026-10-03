@@ -34,7 +34,8 @@ function afficherOnglet(id, btn) {
   if (id === 'rendez-vous') { chargerMesRdv(); }
   if (id === 'rdv-agent') chargerRdvAgent();
   if (id === 'audit-agent') chargerAudit();
-  if (id === 'admin-citoyens') chargerAdminCitoyens();
+    if (id === 'admin-citoyens') chargerAdminCitoyens();
+  if (id === 'services-agent') chargerServicesAgent();
   if (id === 'annonces-citoyen') chargerAnnonces('liste-annonces-citoyen');
 }
 
@@ -904,4 +905,47 @@ if (localStorage.getItem('mode-eco') === 'true') {
   document.getElementById('btn-eco') && document.getElementById('btn-eco').classList.add('actif');
   const banniere = document.getElementById('banniere-eco');
   if (banniere) banniere.style.display = 'block';
+}
+
+// F63 F64 STATUT SERVICES
+async function chargerServicesAgent() {
+  const el = document.getElementById('liste-services-agent');
+  if (!el) return;
+  el.innerHTML = '<p class="etat-vide">⏳ Chargement...</p>';
+  try {
+    const res = await fetch(`${API}/nova/services`);
+    const services = await res.json();
+    el.innerHTML = `
+      <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);margin-bottom:1rem;">
+        <h3>🏛️ Gestion des services — ${services.length} services</h3>
+      </div>
+      ${services.map(s => `
+        <div class="annonce-card" style="border-left:4px solid ${s.statut === 'actif' ? '#27ae60' : s.statut === 'maintenance' ? '#f39c12' : '#c0392b'};">
+          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:0.5rem;">
+            <div>
+              <h3>${echapper(s.icone)} ${echapper(s.nom)}</h3>
+              <p style="font-size:0.85rem;color:var(--gris-texte);">${echapper(s.description)}</p>
+            </div>
+            <select onchange="majStatutService(${s.id}, this.value)" style="padding:0.4rem;border-radius:8px;border:1px solid #ddd;font-size:0.85rem;">
+              <option value="actif" ${s.statut === 'actif' ? 'selected' : ''}>✅ Actif</option>
+              <option value="maintenance" ${s.statut === 'maintenance' ? 'selected' : ''}>🔧 Maintenance</option>
+              <option value="indisponible" ${s.statut === 'indisponible' ? 'selected' : ''}>❌ Indisponible</option>
+            </select>
+          </div>
+          ${s.message_statut ? `<p style="font-size:0.85rem;color:#856404;margin-top:0.5rem;">⚠️ ${echapper(s.message_statut)}</p>` : ''}
+        </div>
+      `).join('')}
+    `;
+  } catch { el.innerHTML = '<p class="etat-vide">Erreur</p>'; }
+}
+
+async function majStatutService(id, statut) {
+  const message = statut !== 'actif' ? prompt('Message pour les citoyens (optionnel) :') : null;
+  try {
+    await fetch(`${API}/nova/services/${id}/statut`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ statut, message_statut: message }) });
+    afficherToast('✅ Statut service mis à jour !');
+    chargerServicesAgent();
+    chargerServices('liste-services-public');
+    chargerServices('liste-services-citoyen');
+  } catch { afficherToast('Erreur', 'erreur'); }
 }

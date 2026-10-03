@@ -301,7 +301,8 @@ body.mode-eco *{transition:none!important;animation:none!important;}
       <button class="nav-tab" onclick="afficherOnglet('rdv-agent', this)">📅 Rendez-vous</button>
       <button class="nav-tab" onclick="afficherOnglet('api-nova', this)">🌌 API Nova Terra</button>
       <button class="nav-tab" onclick="afficherOnglet('audit-agent', this)">📋 Journal</button>
-      <button class="nav-tab" onclick="afficherOnglet('admin-citoyens', this)">👑 Admin</button>
+     <button class="nav-tab" onclick="afficherOnglet('admin-citoyens', this)">👑 Admin</button>
+<button class="nav-tab" onclick="afficherOnglet('services-agent', this)">🏛️ Services</button>
     </div>
     <div id="dashboard-agent" class="section active">
       <div id="contenu-dashboard"></div>
@@ -341,8 +342,11 @@ body.mode-eco *{transition:none!important;animation:none!important;}
     <div id="audit-agent" class="section">
       <div id="liste-audit"></div>
     </div>
-    <div id="admin-citoyens" class="section">
+        <div id="admin-citoyens" class="section">
       <div id="liste-admin-citoyens"></div>
+    </div>
+    <div id="services-agent" class="section">
+      <div id="liste-services-agent"></div>
     </div>
     <div id="api-nova" class="section">
       <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);margin-bottom:1rem;">

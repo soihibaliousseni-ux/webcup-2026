@@ -238,4 +238,14 @@ router.get('/profil/export', verifierToken, async (req, res) => {
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
 
+// F63 F64 Statut services
+router.put('/services/:id/statut', verifierToken, async (req, res) => {
+  try {
+    if (req.user.role === 'citoyen') return res.status(403).json({ erreur: 'Accès refusé' });
+    const { statut, message_statut } = req.body;
+    await pool.query('UPDATE services SET statut = ?, message_statut = ? WHERE id = ?', [statut, message_statut || null, req.params.id]);
+    res.json({ message: 'Statut mis à jour' });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
 module.exports = router;
