@@ -338,3 +338,26 @@ async function chargerAPINova() {
 }
 
 majAffichage();
+
+// ACCESSIBILITÉ F21 F23 F24
+let tailleCourante = 100;
+
+function changerTaille(direction) {
+  tailleCourante = Math.min(150, Math.max(80, tailleCourante + (direction * 10)));
+  document.body.style.fontSize = tailleCourante + '%';
+  localStorage.setItem('taille-texte', tailleCourante);
+}
+
+function toggleContraste() {
+  document.body.classList.toggle('contraste-eleve');
+  const btn = document.getElementById('btn-contraste');
+  const actif = document.body.classList.contains('contraste-eleve');
+  btn.classList.toggle('actif', actif);
+  btn.setAttribute('aria-pressed', actif);
+  localStorage.setItem('contraste-eleve', actif);
+}
+
+// Restaurer préférences accessibilité
+const tailleStockee = localStorage.getItem('taille-texte');
+if (tailleStockee) { tailleCourante = parseInt(tailleStockee); document.body.style.fontSize = tailleCourante + '%'; }
+if (localStorage.getItem('contraste-eleve') === 'true') { document.body.classList.add('contraste-eleve'); document.getElementById('btn-contraste').classList.add('actif'); }

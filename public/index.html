@@ -32,82 +32,91 @@ cat > public/index.html << 'EOF'
 .modale-service{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;}
 .modale-service-contenu{background:white;border-radius:16px;padding:2rem;max-width:500px;width:90%;position:relative;}
 .confirmation-contact{background:#d4edda;color:#155724;border-radius:10px;padding:1rem;margin-top:1rem;display:none;}
-@media(max-width:600px){.topbar-nav{display:none;}.service-grid{grid-template-columns:1fr 1fr;}}
+.btn-access{background:#f0f0f0;border:1px solid #ddd;border-radius:6px;padding:0.3rem 0.7rem;cursor:pointer;font-weight:700;font-size:0.9rem;transition:background 0.2s;}
+.btn-access:hover{background:var(--corail);color:white;}
+.btn-access.actif{background:var(--lagon-500);color:white;}
+body.contraste-eleve{background:#000!important;color:#fff!important;}
+body.contraste-eleve .service-card,body.contraste-eleve .annonce-card,body.contraste-eleve .demande-api-card{background:#111!important;color:#fff!important;border:2px solid #fff;}
+body.contraste-eleve .topbar{background:#000!important;border-bottom:2px solid #fff;}
+body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.contraste-eleve h3{color:#fff!important;}
+@media(max-width:600px){.topbar-nav{display:none;}.service-grid{grid-template-columns:1fr 1fr;}.topbar-access{display:none;}}
 </style>
 </head>
 <body>
-<header class="topbar">
+<header class="topbar" role="banner">
   <div class="brand">Terra<span>Nova</span></div>
-  <nav class="topbar-nav">
+  <nav class="topbar-nav" role="navigation" aria-label="Navigation principale">
     <a href="#section-services">Services</a>
     <a href="#section-annonces">Annonces</a>
     <a href="#section-contact">Contact</a>
   </nav>
-  <nav class="topbar-actions">
-    <span id="role-display" class="role-badge role-citoyen hidden"></span>
-    <button id="btn-connexion" class="btn-ghost">Connexion</button>
-    <button id="btn-inscription" class="btn-plein">S'inscrire</button>
-    <button id="btn-deconnexion" class="btn-ghost hidden">Déconnexion</button>
+  <div class="topbar-access" style="display:flex;gap:0.4rem;align-items:center;" role="toolbar" aria-label="Accessibilité">
+    <button onclick="changerTaille(-1)" class="btn-access" aria-label="Réduire la taille du texte" title="Réduire le texte">A-</button>
+    <button onclick="changerTaille(1)" class="btn-access" aria-label="Agrandir la taille du texte" title="Agrandir le texte">A+</button>
+    <button onclick="toggleContraste()" class="btn-access" id="btn-contraste" aria-label="Activer le contraste élevé" title="Contraste élevé">◐</button>
+  </div>
+  <nav class="topbar-actions" role="navigation" aria-label="Compte utilisateur">
+    <span id="role-display" class="role-badge role-citoyen hidden" aria-live="polite"></span>
+    <button id="btn-connexion" class="btn-ghost" aria-label="Se connecter">Connexion</button>
+    <button id="btn-inscription" class="btn-plein" aria-label="Créer un compte">S'inscrire</button>
+    <button id="btn-deconnexion" class="btn-ghost hidden" aria-label="Se déconnecter">Déconnexion</button>
   </nav>
 </header>
-<main>
+<main role="main">
   <!-- ACCUEIL PUBLIC -->
-  <section id="ecran-accueil" class="dashboard">
+  <section id="ecran-accueil" class="dashboard" aria-label="Page d'accueil">
     <div style="text-align:center;padding:3rem 1rem 2rem;">
       <h1 style="font-size:2.5rem;">🌌 Bienvenue sur Terra Nova</h1>
       <p style="color:var(--gris-texte);font-size:1.1rem;margin:1rem 0 2rem;">La plateforme numérique de la première ville humaine sur une autre planète.</p>
       <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-        <button onclick="ouvrirModaleAuth('register')" class="btn-plein btn-large">Créer mon compte</button>
-        <button onclick="ouvrirModaleAuth('login')" class="btn-ghost btn-large">Me connecter</button>
+        <button onclick="ouvrirModaleAuth('register')" class="btn-plein btn-large" aria-label="Créer mon compte citoyen">Créer mon compte</button>
+        <button onclick="ouvrirModaleAuth('login')" class="btn-ghost btn-large" aria-label="Me connecter à mon espace">Me connecter</button>
       </div>
     </div>
-    <!-- Services publics -->
     <div class="dashboard-header" id="section-services"><h2>🏛️ Services de Nova Terra</h2></div>
-    <div id="liste-services-public" class="service-grid"></div>
-    <!-- Annonces publiques -->
+    <div id="liste-services-public" class="service-grid" role="list" aria-label="Liste des services municipaux"></div>
     <div class="dashboard-header" style="margin-top:2rem;" id="section-annonces"><h2>📢 Annonces municipales</h2></div>
-    <div id="liste-annonces-public"></div>
-    <!-- Contact public -->
+    <div id="liste-annonces-public" aria-live="polite"></div>
     <div class="dashboard-header" style="margin-top:2rem;" id="section-contact"><h2>✉️ Contacter l'administration</h2></div>
     <div style="background:white;border-radius:12px;padding:2rem;box-shadow:var(--ombre);">
-      <form id="form-contact">
-        <label>Votre nom *<input type="text" name="nom" required></label>
-        <label>Email<input type="email" name="email"></label>
-        <label>Message *<textarea name="message" rows="4" required></textarea></label>
-        <button type="submit" class="btn-plein">Envoyer</button>
+      <form id="form-contact" aria-label="Formulaire de contact">
+        <label for="contact-nom">Votre nom *<input id="contact-nom" type="text" name="nom" required aria-required="true"></label>
+        <label for="contact-email">Email<input id="contact-email" type="email" name="email"></label>
+        <label for="contact-message">Message *<textarea id="contact-message" name="message" rows="4" required aria-required="true"></textarea></label>
+        <button type="submit" class="btn-plein" aria-label="Envoyer le message">Envoyer</button>
       </form>
-      <div id="confirmation-contact" class="confirmation-contact">
+      <div id="confirmation-contact" class="confirmation-contact" role="alert" aria-live="assertive">
         ✅ Votre message a bien été envoyé à l'administration de Terra Nova !
       </div>
     </div>
   </section>
 
   <!-- ESPACE CITOYEN -->
-  <section id="ecran-citoyen" class="dashboard hidden">
+  <section id="ecran-citoyen" class="dashboard hidden" aria-label="Espace citoyen">
     <div class="dashboard-header">
       <h2>👤 Mon espace citoyen — <span id="nom-citoyen"></span></h2>
     </div>
-    <div class="nav-tabs">
-      <button class="nav-tab active" onclick="afficherOnglet('services-citoyen', this)">🏛️ Services</button>
-      <button class="nav-tab" onclick="afficherOnglet('annonces-citoyen', this)">📢 Annonces</button>
-      <button class="nav-tab" onclick="afficherOnglet('mes-demandes', this)">📋 Mes demandes</button>
-      <button class="nav-tab" onclick="afficherOnglet('nouvelle-demande', this)">➕ Nouvelle demande</button>
+    <div class="nav-tabs" role="tablist">
+      <button class="nav-tab active" onclick="afficherOnglet('services-citoyen', this)" role="tab" aria-selected="true">🏛️ Services</button>
+      <button class="nav-tab" onclick="afficherOnglet('annonces-citoyen', this)" role="tab" aria-selected="false">📢 Annonces</button>
+      <button class="nav-tab" onclick="afficherOnglet('mes-demandes', this)" role="tab" aria-selected="false">📋 Mes demandes</button>
+      <button class="nav-tab" onclick="afficherOnglet('nouvelle-demande', this)" role="tab" aria-selected="false">➕ Nouvelle demande</button>
     </div>
-    <div id="services-citoyen" class="section active">
+    <div id="services-citoyen" class="section active" role="tabpanel">
       <div id="liste-services-citoyen" class="service-grid"></div>
     </div>
-    <div id="annonces-citoyen" class="section">
+    <div id="annonces-citoyen" class="section" role="tabpanel">
       <div id="liste-annonces-citoyen"></div>
     </div>
-    <div id="mes-demandes" class="section">
-      <div id="liste-mes-demandes"></div>
+    <div id="mes-demandes" class="section" role="tabpanel">
+      <div id="liste-mes-demandes" aria-live="polite"></div>
     </div>
-    <div id="nouvelle-demande" class="section">
+    <div id="nouvelle-demande" class="section" role="tabpanel">
       <div style="background:white;border-radius:12px;padding:2rem;box-shadow:var(--ombre);">
         <h3>Soumettre une demande</h3>
-        <form id="form-demande">
-          <label>Sujet *<input type="text" name="sujet" required></label>
-          <label>Message *<textarea name="message" rows="4" required></textarea></label>
+        <form id="form-demande" aria-label="Formulaire de demande citoyenne">
+          <label for="demande-sujet">Sujet *<input id="demande-sujet" type="text" name="sujet" required aria-required="true"></label>
+          <label for="demande-message">Message *<textarea id="demande-message" name="message" rows="4" required aria-required="true"></textarea></label>
           <button type="submit" class="btn-plein">Soumettre</button>
         </form>
       </div>
@@ -115,61 +124,61 @@ cat > public/index.html << 'EOF'
   </section>
 
   <!-- ESPACE AGENT/ADMIN -->
-  <section id="ecran-agent" class="dashboard hidden">
+  <section id="ecran-agent" class="dashboard hidden" aria-label="Espace agent municipal">
     <div class="dashboard-header">
       <h2>⚙️ Espace agent — <span id="nom-agent"></span></h2>
     </div>
-    <div class="nav-tabs">
-      <button class="nav-tab active" onclick="afficherOnglet('demandes-agent', this)">📋 Demandes citoyens</button>
-      <button class="nav-tab" onclick="afficherOnglet('messages-agent', this)">✉️ Messages contact</button>
-      <button class="nav-tab" onclick="afficherOnglet('api-nova', this)">🌌 API Nova Terra</button>
+    <div class="nav-tabs" role="tablist">
+      <button class="nav-tab active" onclick="afficherOnglet('demandes-agent', this)" role="tab">📋 Demandes citoyens</button>
+      <button class="nav-tab" onclick="afficherOnglet('messages-agent', this)" role="tab">✉️ Messages contact</button>
+      <button class="nav-tab" onclick="afficherOnglet('api-nova', this)" role="tab">🌌 API Nova Terra</button>
     </div>
-    <div id="demandes-agent" class="section active">
-      <div id="liste-demandes-agent"></div>
+    <div id="demandes-agent" class="section active" role="tabpanel">
+      <div id="liste-demandes-agent" aria-live="polite"></div>
     </div>
-    <div id="messages-agent" class="section">
-      <div id="liste-messages-agent"></div>
+    <div id="messages-agent" class="section" role="tabpanel">
+      <div id="liste-messages-agent" aria-live="polite"></div>
     </div>
-    <div id="api-nova" class="section">
+    <div id="api-nova" class="section" role="tabpanel">
       <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);margin-bottom:1rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
           <h3>🌌 Demandes API Terra Nova</h3>
-          <span id="session-info" style="font-size:0.85rem;color:var(--gris-texte);"></span>
+          <span id="session-info" style="font-size:0.85rem;color:var(--gris-texte);" aria-live="polite"></span>
         </div>
       </div>
-      <div id="liste-api-nova"></div>
+      <div id="liste-api-nova" aria-live="polite"></div>
     </div>
   </section>
 
   <!-- MODALE SERVICE DETAIL -->
-  <div id="modale-service" class="modale-service hidden">
+  <div id="modale-service" class="modale-service hidden" role="dialog" aria-modal="true" aria-labelledby="titre-service">
     <div class="modale-service-contenu">
-      <button onclick="fermerModaleService()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+      <button onclick="fermerModaleService()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer;" aria-label="Fermer">&times;</button>
       <div id="detail-service"></div>
     </div>
   </div>
 
   <!-- MODALES AUTH -->
-  <div id="modale-auth" class="modale hidden">
+  <div id="modale-auth" class="modale hidden" role="dialog" aria-modal="true">
     <div class="modale-contenu">
-      <button class="modale-fermer" id="fermer-modale">&times;</button>
+      <button class="modale-fermer" id="fermer-modale" aria-label="Fermer">&times;</button>
       <div id="formulaire-connexion">
         <h2>Connexion</h2>
-        <form id="form-login">
-          <label>Email<input type="email" name="email" required></label>
-          <label>Mot de passe<input type="password" name="mot_de_passe" required></label>
-          <p class="erreur" id="erreur-login"></p>
+        <form id="form-login" aria-label="Formulaire de connexion">
+          <label for="login-email">Email<input id="login-email" type="email" name="email" required aria-required="true"></label>
+          <label for="login-mdp">Mot de passe<input id="login-mdp" type="password" name="mot_de_passe" required aria-required="true"></label>
+          <p class="erreur" id="erreur-login" role="alert"></p>
           <button type="submit" class="btn-plein">Se connecter</button>
         </form>
         <p style="margin-top:1rem;font-size:0.9rem;text-align:center;">Pas encore de compte ? <a href="#" onclick="ouvrirModaleAuth('register')">S'inscrire</a></p>
       </div>
       <div id="formulaire-inscription" class="hidden">
         <h2>Créer un compte citoyen</h2>
-        <form id="form-register">
-          <label>Nom complet<input type="text" name="nom" required></label>
-          <label>Email<input type="email" name="email" required></label>
-          <label>Mot de passe<input type="password" name="mot_de_passe" required minlength="6"></label>
-          <p class="erreur" id="erreur-register"></p>
+        <form id="form-register" aria-label="Formulaire d'inscription">
+          <label for="register-nom">Nom complet<input id="register-nom" type="text" name="nom" required aria-required="true"></label>
+          <label for="register-email">Email<input id="register-email" type="email" name="email" required aria-required="true"></label>
+          <label for="register-mdp">Mot de passe<input id="register-mdp" type="password" name="mot_de_passe" required minlength="6" aria-required="true"></label>
+          <p class="erreur" id="erreur-register" role="alert"></p>
           <button type="submit" class="btn-plein">S'inscrire</button>
         </form>
         <p style="margin-top:1rem;font-size:0.9rem;text-align:center;">Déjà un compte ? <a href="#" onclick="ouvrirModaleAuth('login')">Se connecter</a></p>
@@ -177,7 +186,7 @@ cat > public/index.html << 'EOF'
     </div>
   </div>
 </main>
-<footer><p>Terra Nova — Plateforme Numérique Municipale © 2026</p></footer>
+<footer role="contentinfo"><p>Terra Nova — Plateforme Numérique Municipale © 2026</p></footer>
 <script src="/js/app.js"></script>
 </body>
 </html>
