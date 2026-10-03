@@ -678,3 +678,17 @@ async function chargerRdvAgent() {
     `;
   } catch { el.innerHTML = '<p class="etat-vide">Erreur</p>'; }
 }
+
+// F43 MODE DALTONIEN
+function toggleDaltonien() {
+  document.body.classList.toggle('daltonien');
+  const btn = document.getElementById('btn-dalton');
+  const actif = document.body.classList.contains('daltonien');
+  btn.classList.toggle('actif', actif);
+  localStorage.setItem('daltonien', actif);
+}
+
+if (localStorage.getItem('daltonien') === 'true') {
+  document.body.classList.add('daltonien');
+  document.getElementById('btn-dalton') && document.getElementById('btn-dalton').classList.add('actif');
+}

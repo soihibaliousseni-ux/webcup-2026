@@ -47,6 +47,17 @@
 .alerte-canicule{background:#ffeeba;color:#856404;}
 .transport-card{background:white;border-radius:12px;padding:1.5rem;margin-bottom:1rem;box-shadow:var(--ombre);border-left:4px solid var(--lagon-500);}
 .rdv-card{background:white;border-radius:12px;padding:1.5rem;margin-bottom:1rem;box-shadow:var(--ombre);border-left:4px solid #27ae60;}
+.glossaire-tooltip{position:relative;border-bottom:2px dotted var(--corail);cursor:help;}
+.glossaire-tooltip:hover::after{content:attr(data-def);position:absolute;bottom:100%;left:0;background:#1c6b7a;color:white;padding:0.5rem;border-radius:8px;font-size:0.8rem;white-space:nowrap;z-index:100;max-width:250px;white-space:normal;}
+/* F41 Focus clavier visible */
+*:focus{outline:3px solid var(--corail)!important;outline-offset:2px!important;}
+/* F43 Daltonisme */
+body.daltonien .badge-attente{background:#fff;color:#000;border:2px solid #000;}
+body.daltonien .badge-cours{background:#ddd;color:#000;border:2px solid #000;}
+body.daltonien .badge-resolu{background:#000;color:#fff;}
+body.daltonien .alerte-urgence{background:#000;color:#fff;}
+body.daltonien .alerte-canicule{background:#888;color:#000;}
+body.daltonien .btn-plein{background:#000!important;color:#fff!important;}
 body.contraste-eleve{background:#000!important;color:#fff!important;}
 body.contraste-eleve .service-card,body.contraste-eleve .annonce-card,body.contraste-eleve .demande-api-card,body.contraste-eleve .stat-card,body.contraste-eleve .transport-card,body.contraste-eleve .rdv-card{background:#111!important;color:#fff!important;border:2px solid #fff;}
 body.contraste-eleve .topbar{background:#000!important;border-bottom:2px solid #fff;}
@@ -69,6 +80,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
     <button onclick="changerTaille(-1)" class="btn-access" aria-label="Réduire la taille du texte" title="Réduire le texte">A-</button>
     <button onclick="changerTaille(1)" class="btn-access" aria-label="Agrandir la taille du texte" title="Agrandir le texte">A+</button>
     <button onclick="toggleContraste()" class="btn-access" id="btn-contraste" aria-label="Activer le contraste élevé" title="Contraste élevé">◐</button>
+    <button onclick="toggleDaltonien()" class="btn-access" id="btn-dalton" aria-label="Mode daltonien" title="Mode daltonien">◑</button>
   </div>
   <nav class="topbar-actions" role="navigation" aria-label="Compte utilisateur">
     <span id="role-display" class="role-badge role-citoyen hidden" aria-live="polite"></span>
@@ -89,6 +101,14 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
         <button onclick="ouvrirModaleAuth('register')" class="btn-plein btn-large">Créer mon compte</button>
         <button onclick="ouvrirModaleAuth('login')" class="btn-ghost btn-large">Me connecter</button>
       </div>
+    </div>
+    <!-- Glossaire D13 -->
+    <div style="background:#f0f8ff;border-radius:12px;padding:1rem 1.5rem;margin-bottom:1rem;font-size:0.9rem;">
+      📖 <strong>Glossaire :</strong>
+      <span class="glossaire-tooltip" data-def="Espace personnel sécurisé sur la plateforme">Espace citoyen</span> —
+      <span class="glossaire-tooltip" data-def="Demande officielle soumise à l'administration">Démarche</span> —
+      <span class="glossaire-tooltip" data-def="Personne travaillant pour les services municipaux">Agent municipal</span> —
+      <span class="glossaire-tooltip" data-def="Information importante diffusée par la mairie">Annonce municipale</span>
     </div>
     <div class="dashboard-header" id="section-services"><h2>🏛️ Services de Nova Terra</h2></div>
     <div id="liste-services-public" class="service-grid"></div>
@@ -165,18 +185,10 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
           <label>Heure *
             <select name="heure" required style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ddd;margin-top:0.3rem;">
               <option value="">Choisir un créneau...</option>
-              <option>08:00</option>
-              <option>08:30</option>
-              <option>09:00</option>
-              <option>09:30</option>
-              <option>10:00</option>
-              <option>10:30</option>
-              <option>11:00</option>
-              <option>11:30</option>
-              <option>14:00</option>
-              <option>14:30</option>
-              <option>15:00</option>
-              <option>15:30</option>
+              <option>08:00</option><option>08:30</option><option>09:00</option>
+              <option>09:30</option><option>10:00</option><option>10:30</option>
+              <option>11:00</option><option>11:30</option><option>14:00</option>
+              <option>14:30</option><option>15:00</option><option>15:30</option>
               <option>16:00</option>
             </select>
           </label>
