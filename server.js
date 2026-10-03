@@ -24,6 +24,8 @@ app.use('/api/posts', require('./api/posts'));
 app.use('/api/produits', require('./api/produits'));
 app.use('/api/commandes', require('./api/commandes'));
 app.use('/api/traduction', require('./api/traduction'));
+app.use('/api/terranova', require('./api/terranova'));
+app.use('/api/nova', require('./api/nova'));
 
 // Healthcheck rapide (utile pour vérifier le déploiement en 2 secondes)
 app.get('/api/health', (req, res) => {

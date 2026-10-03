@@ -3,36 +3,128 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Marché Mayotte — 24h By Webcup</title>
+<title>Terra Nova — Plateforme Numérique</title>
 <link rel="stylesheet" href="/css/style.css">
+<style>
+.nav-tabs{display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+.nav-tab{padding:0.5rem 1rem;border:none;border-radius:8px;cursor:pointer;background:#f0f0f0;font-family:Inter,sans-serif;}
+.nav-tab.active{background:var(--corail);color:white;}
+.section{display:none;}.section.active{display:block;}
+.service-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;}
+.service-card{background:white;border-radius:12px;padding:1.5rem;text-align:center;box-shadow:var(--ombre);}
+.service-card .icone{font-size:2rem;margin-bottom:0.5rem;}
+.badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.8rem;font-weight:600;}
+.badge-attente{background:#fff3cd;color:#856404;}
+.badge-cours{background:#cce5ff;color:#004085;}
+.badge-resolu{background:#d4edda;color:#155724;}
+.annonce-card{background:white;border-radius:12px;padding:1.5rem;margin-bottom:1rem;box-shadow:var(--ombre);}
+.xp-badge{background:var(--lagon-500);color:white;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.8rem;}
+.demande-api-card{background:white;border-radius:12px;padding:1.5rem;margin-bottom:1rem;box-shadow:var(--ombre);border-left:4px solid var(--corail);}
+.role-badge{padding:0.2rem 0.8rem;border-radius:20px;font-size:0.8rem;font-weight:600;}
+.role-citoyen{background:#e8f4f8;color:var(--lagon-700);}
+.role-agent{background:#fff3cd;color:#856404;}
+.role-admin{background:#f8d7da;color:#721c24;}
+</style>
 </head>
 <body>
 <header class="topbar">
-  <div class="brand">Marché<span>Mayotte</span></div>
+  <div class="brand">Terra<span>Nova</span></div>
   <nav class="topbar-actions">
+    <span id="role-display" class="role-badge role-citoyen hidden"></span>
     <button id="btn-connexion" class="btn-ghost">Connexion</button>
-    <button id="btn-inscription" class="btn-plein">Créer un compte</button>
+    <button id="btn-inscription" class="btn-plein">S'inscrire</button>
     <button id="btn-deconnexion" class="btn-ghost hidden">Déconnexion</button>
-      <select id="selecteur-langue" class="btn-ghost" style="cursor:pointer;padding:0.5rem;">
-      <option value="">🌍 Langue</option>
-    </select>
   </nav>
 </header>
 <main>
-  <section id="ecran-accueil" class="hero">
-    <h1>Le marché des vendeurs de Mayotte</h1>
-    <p class="hero-sub">Achetez directement auprès des vendeurs locaux.</p>
-    <button id="btn-commencer" class="btn-plein btn-large">Vendre mes produits</button>
-  </section>
-
-  <!-- SECTION PUBLIQUE — visible sans connexion -->
-  <section id="section-publique" class="dashboard">
-    <div class="dashboard-header">
-      <h2>Produits disponibles</h2>
+  <!-- ACCUEIL PUBLIC -->
+  <section id="ecran-accueil" class="dashboard">
+    <div style="text-align:center;padding:3rem 1rem 2rem;">
+      <h1 style="font-size:2.5rem;">🌌 Bienvenue sur Terra Nova</h1>
+      <p style="color:var(--gris-texte);font-size:1.1rem;margin:1rem 0 2rem;">La plateforme numérique de la première ville humaine sur une autre planète.</p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <button onclick="ouvrirModaleAuth('register')" class="btn-plein btn-large">Créer mon compte</button>
+        <button onclick="ouvrirModaleAuth('login')" class="btn-ghost btn-large">Me connecter</button>
+      </div>
     </div>
-    <div id="liste-publique" class="liste-items"></div>
+    <!-- Services publics -->
+    <div class="dashboard-header"><h2>🏛️ Services de Nova Terra</h2></div>
+    <div id="liste-services-public" class="service-grid"></div>
+    <!-- Annonces publiques -->
+    <div class="dashboard-header" style="margin-top:2rem;"><h2>📢 Annonces municipales</h2></div>
+    <div id="liste-annonces-public"></div>
+    <!-- Contact public -->
+    <div class="dashboard-header" style="margin-top:2rem;"><h2>✉️ Contacter l'administration</h2></div>
+    <div style="background:white;border-radius:12px;padding:2rem;box-shadow:var(--ombre);">
+      <form id="form-contact">
+        <label>Votre nom<input type="text" name="nom" required></label>
+        <label>Email<input type="email" name="email"></label>
+        <label>Message<textarea name="message" rows="4" required></textarea></label>
+        <button type="submit" class="btn-plein">Envoyer</button>
+      </form>
+    </div>
   </section>
 
+  <!-- ESPACE CITOYEN -->
+  <section id="ecran-citoyen" class="dashboard hidden">
+    <div class="dashboard-header">
+      <h2>👤 Mon espace citoyen — <span id="nom-citoyen"></span></h2>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="afficherOnglet('services-citoyen', this)">🏛️ Services</button>
+      <button class="nav-tab" onclick="afficherOnglet('annonces-citoyen', this)">📢 Annonces</button>
+      <button class="nav-tab" onclick="afficherOnglet('mes-demandes', this)">📋 Mes demandes</button>
+      <button class="nav-tab" onclick="afficherOnglet('nouvelle-demande', this)">➕ Nouvelle demande</button>
+    </div>
+    <div id="services-citoyen" class="section active">
+      <div id="liste-services-citoyen" class="service-grid"></div>
+    </div>
+    <div id="annonces-citoyen" class="section">
+      <div id="liste-annonces-citoyen"></div>
+    </div>
+    <div id="mes-demandes" class="section">
+      <div id="liste-mes-demandes"></div>
+    </div>
+    <div id="nouvelle-demande" class="section">
+      <div style="background:white;border-radius:12px;padding:2rem;box-shadow:var(--ombre);">
+        <h3>Soumettre une demande</h3>
+        <form id="form-demande">
+          <label>Sujet<input type="text" name="sujet" required></label>
+          <label>Message<textarea name="message" rows="4" required></textarea></label>
+          <button type="submit" class="btn-plein">Soumettre</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESPACE AGENT/ADMIN -->
+  <section id="ecran-agent" class="dashboard hidden">
+    <div class="dashboard-header">
+      <h2>⚙️ Espace agent — <span id="nom-agent"></span></h2>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="afficherOnglet('demandes-agent', this)">📋 Demandes citoyens</button>
+      <button class="nav-tab" onclick="afficherOnglet('messages-agent', this)">✉️ Messages contact</button>
+      <button class="nav-tab" onclick="afficherOnglet('api-nova', this)">🌌 API Nova Terra</button>
+    </div>
+    <div id="demandes-agent" class="section active">
+      <div id="liste-demandes-agent"></div>
+    </div>
+    <div id="messages-agent" class="section">
+      <div id="liste-messages-agent"></div>
+    </div>
+    <div id="api-nova" class="section">
+      <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);margin-bottom:1rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3>🌌 Demandes API Terra Nova</h3>
+          <span id="session-info" style="font-size:0.85rem;color:var(--gris-texte);"></span>
+        </div>
+      </div>
+      <div id="liste-api-nova"></div>
+    </div>
+  </section>
+
+  <!-- MODALES AUTH -->
   <div id="modale-auth" class="modale hidden">
     <div class="modale-contenu">
       <button class="modale-fermer" id="fermer-modale">&times;</button>
@@ -46,9 +138,9 @@
         </form>
       </div>
       <div id="formulaire-inscription" class="hidden">
-        <h2>Créer un compte vendeur</h2>
+        <h2>Créer un compte citoyen</h2>
         <form id="form-register">
-          <label>Nom<input type="text" name="nom" required></label>
+          <label>Nom complet<input type="text" name="nom" required></label>
           <label>Email<input type="email" name="email" required></label>
           <label>Mot de passe<input type="password" name="mot_de_passe" required minlength="6"></label>
           <p class="erreur" id="erreur-register"></p>
@@ -57,31 +149,8 @@
       </div>
     </div>
   </div>
-
-  <section id="ecran-dashboard" class="dashboard hidden">
-    <div class="dashboard-header">
-      <h2>Bonjour, <span id="nom-utilisateur"></span></h2>
-      <button id="btn-nouveau" class="btn-plein">+ Ajouter un produit</button>
-    </div>
-    <div id="liste-items" class="liste-items"></div>
-  </section>
-
-  <div id="modale-item" class="modale hidden">
-    <div class="modale-contenu">
-      <button class="modale-fermer" id="fermer-modale-item">&times;</button>
-      <h2>Nouveau produit</h2>
-      <form id="form-item">
-        <label>Nom du produit<input type="text" name="nom" required></label>
-        <label>Description<textarea name="description" rows="2"></textarea></label>
-        <label>Prix (€)<input type="number" name="prix" step="0.01" required></label>
-        <label>Stock<input type="number" name="stock" value="1"></label>
-        <label>Catégorie<input type="text" name="categorie" placeholder="Alimentation, Artisanat..."></label>
-        <button type="submit" class="btn-plein">Enregistrer</button>
-      </form>
-    </div>
-  </div>
 </main>
-<footer><p>Marché Mayotte — 24h By Webcup 2026</p></footer>
+<footer><p>Terra Nova — Plateforme Numérique Municipale © 2026</p></footer>
 <script src="/js/app.js"></script>
 </body>
 </html>
