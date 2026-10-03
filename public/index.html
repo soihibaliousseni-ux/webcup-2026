@@ -281,8 +281,12 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
     <div id="api-nova" class="section">
       <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);margin-bottom:1rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
-          <h3>🌌 Demandes API Terra Nova</h3>
-          <span id="session-info" style="font-size:0.85rem;color:var(--gris-texte);"></span>
+        <h3>🌌 Demandes API Terra Nova</h3>
+<div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+  <span id="session-info" style="font-size:0.85rem;color:var(--gris-texte);"></span>
+  <span id="synchro-info" style="font-size:0.8rem;color:var(--gris-texte);"></span>
+  <button onclick="chargerAPINova()" class="btn-access" style="font-size:0.8rem;">🔄 Actualiser</button>
+</div>
         </div>
       </div>
       <div id="liste-api-nova"></div>

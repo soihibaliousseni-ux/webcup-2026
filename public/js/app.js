@@ -1,4 +1,3 @@
-
 const API = '/api';
 let token = localStorage.getItem('token');
 let utilisateur = JSON.parse(localStorage.getItem('utilisateur') || 'null');
@@ -20,17 +19,17 @@ function echapper(t) {
 function afficherOnglet(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
-   document.getElementById(id).classList.add('active');
+  document.getElementById(id).classList.add('active');
   btn.classList.add('active');
   if (aidesOnglets && aidesOnglets[id]) afficherAide(aidesOnglets[id]);
   if (id === 'demandes-agent') { chargerDemandesAgent(); chargerStatsAgent(); }
-    if (id === 'messages-agent') chargerMessagesAgent();
+  if (id === 'messages-agent') chargerMessagesAgent();
   if (id === 'signalements-agent') chargerSignalementsAgent();
-if (id === 'alertes-agent') { chargerAlertesAgent(); }
+  if (id === 'alertes-agent') { chargerAlertesAgent(); }
   if (id === 'api-nova') chargerAPINova();
   if (id === 'mes-demandes') chargerMesDemandes();
   if (id === 'services-citoyen') chargerServices('liste-services-citoyen');
-   if (id === 'transports') chargerTransports();
+  if (id === 'transports') chargerTransports();
   if (id === 'rendez-vous') { chargerMesRdv(); }
   if (id === 'rdv-agent') chargerRdvAgent();
   if (id === 'annonces-citoyen') chargerAnnonces('liste-annonces-citoyen');
@@ -149,7 +148,7 @@ document.getElementById('form-register').addEventListener('submit', async (e) =>
     localStorage.setItem('token', token);
     localStorage.setItem('utilisateur', JSON.stringify(utilisateur));
     document.getElementById('modale-auth').classList.add('hidden');
-            afficherToast('Bienvenue sur Terra Nova !');
+    afficherToast('Bienvenue sur Terra Nova !');
     if (!localStorage.getItem('onboarding-done')) {
       setTimeout(() => document.getElementById('modale-onboarding').classList.remove('hidden'), 500);
     }
@@ -333,6 +332,8 @@ async function chargerAPINova() {
     if (sessionInfo && session) {
       sessionInfo.textContent = `Vague ${session.current_wave} | ${session.visible_requests_count} demandes | Prochaine dans ${session.minutes_until_next_wave} min`;
     }
+    const synchro = document.getElementById('synchro-info');
+    if (synchro) synchro.textContent = `— Synchro : ${new Date().toLocaleTimeString('fr-FR')}`;
     if (!demandes || demandes.length === 0) { el.innerHTML = '<p class="etat-vide">Aucune demande disponible</p>'; return; }
     el.innerHTML = demandes.map(d => `
       <div class="demande-api-card">
@@ -489,7 +490,7 @@ async function chargerAlertes() {
     el.innerHTML = alertes.map(a => `
       <div class="alerte-banniere alerte-${a.type}" role="alert">
         <div><strong>${echapper(a.titre)}</strong> — ${echapper(a.message)}</div>
-        <button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;font-size:1.2rem;margin-left:1rem;">×</button>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;font-size:1.2rem;margin-left:1rem;" aria-label="Fermer l'alerte">×</button>
       </div>
     `).join('');
   } catch {}
@@ -547,14 +548,12 @@ chargerAlertes();
 // F35 TOOLTIPS AIDE
 function afficherAide(message) {
   const aide = document.createElement('div');
-  aide.textContent = message;
   aide.style.cssText = `position:fixed;top:5rem;right:1rem;padding:1rem 1.5rem;background:#1c6b7a;color:white;border-radius:10px;font-family:Inter,sans-serif;font-size:0.9rem;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.2);max-width:300px;line-height:1.5;`;
   aide.innerHTML = message + '<button onclick="this.parentElement.remove()" style="display:block;margin-top:0.5rem;background:rgba(255,255,255,0.2);border:none;color:white;padding:0.3rem 0.8rem;border-radius:6px;cursor:pointer;">OK</button>';
   document.body.appendChild(aide);
   setTimeout(() => aide.remove && aide.remove(), 8000);
 }
 
-// Afficher aide contextuelle selon l'onglet
 const aidesOnglets = {
   'nouvelle-demande': '💡 Décrivez votre besoin clairement. Un agent traitera votre demande dans les meilleurs délais.',
   'signalement': '💡 Signalez tout problème visible dans votre secteur. Indiquez la localisation précise pour aider nos équipes.',
@@ -691,4 +690,10 @@ function toggleDaltonien() {
 if (localStorage.getItem('daltonien') === 'true') {
   document.body.classList.add('daltonien');
   document.getElementById('btn-dalton') && document.getElementById('btn-dalton').classList.add('actif');
+}
+
+// D12 ONBOARDING
+function fermerOnboarding() {
+  document.getElementById('modale-onboarding').classList.add('hidden');
+  localStorage.setItem('onboarding-done', 'true');
 }
