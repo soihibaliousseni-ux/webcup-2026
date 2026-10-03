@@ -131,4 +131,26 @@ router.get('/transports', async (req, res) => {
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
 
+// Rendez-vous F39 F40
+router.post('/rendez-vous', verifierToken, async (req, res) => {
+  try {
+    const { service, date_rdv, heure, motif } = req.body;
+    if (!service || !date_rdv || !heure) return res.status(400).json({ erreur: 'Service, date et heure requis' });
+    await pool.query('INSERT INTO rendez_vous (user_id, service, date_rdv, heure, motif) VALUES (?, ?, ?, ?, ?)', [req.user.id, service, date_rdv, heure, motif || '']);
+    res.json({ message: '✅ Rendez-vous confirmé ! Un rappel vous sera envoyé.' });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
+router.get('/rendez-vous', verifierToken, async (req, res) => {
+  try {
+    let rows;
+    if (req.user.role === 'agent' || req.user.role === 'admin') {
+      [rows] = await pool.query('SELECT r.*, u.nom as citoyen FROM rendez_vous r LEFT JOIN users u ON r.user_id = u.id ORDER BY r.date_rdv, r.heure');
+    } else {
+      [rows] = await pool.query('SELECT * FROM rendez_vous WHERE user_id = ? ORDER BY date_rdv, heure', [req.user.id]);
+    }
+    res.json(rows);
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
 module.exports = router;

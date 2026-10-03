@@ -46,8 +46,9 @@
 .alerte-inondation{background:#b8d4f0;color:#0c3d6b;}
 .alerte-canicule{background:#ffeeba;color:#856404;}
 .transport-card{background:white;border-radius:12px;padding:1.5rem;margin-bottom:1rem;box-shadow:var(--ombre);border-left:4px solid var(--lagon-500);}
+.rdv-card{background:white;border-radius:12px;padding:1.5rem;margin-bottom:1rem;box-shadow:var(--ombre);border-left:4px solid #27ae60;}
 body.contraste-eleve{background:#000!important;color:#fff!important;}
-body.contraste-eleve .service-card,body.contraste-eleve .annonce-card,body.contraste-eleve .demande-api-card,body.contraste-eleve .stat-card,body.contraste-eleve .transport-card{background:#111!important;color:#fff!important;border:2px solid #fff;}
+body.contraste-eleve .service-card,body.contraste-eleve .annonce-card,body.contraste-eleve .demande-api-card,body.contraste-eleve .stat-card,body.contraste-eleve .transport-card,body.contraste-eleve .rdv-card{background:#111!important;color:#fff!important;border:2px solid #fff;}
 body.contraste-eleve .topbar{background:#000!important;border-bottom:2px solid #fff;}
 body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.contraste-eleve h3{color:#fff!important;}
 @media(max-width:600px){.topbar-nav{display:none;}.service-grid{grid-template-columns:1fr 1fr;}.topbar-access{display:none;}}
@@ -80,7 +81,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
   <div id="banniere-alertes" aria-live="assertive"></div>
 
   <!-- ACCUEIL PUBLIC -->
-  <section id="ecran-accueil" class="dashboard" aria-label="Page d'accueil">
+  <section id="ecran-accueil" class="dashboard">
     <div style="text-align:center;padding:3rem 1rem 2rem;">
       <h1 style="font-size:2.5rem;">🌌 Bienvenue sur Terra Nova</h1>
       <p style="color:var(--gris-texte);font-size:1.1rem;margin:1rem 0 2rem;">La plateforme numérique de la première ville humaine sur une autre planète.</p>
@@ -119,6 +120,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
       <button class="nav-tab" onclick="afficherOnglet('annonces-citoyen', this)">📢 Annonces</button>
       <button class="nav-tab" onclick="afficherOnglet('mes-demandes', this)">📋 Mes demandes</button>
       <button class="nav-tab" onclick="afficherOnglet('nouvelle-demande', this)">➕ Nouvelle demande</button>
+      <button class="nav-tab" onclick="afficherOnglet('rendez-vous', this)">📅 Rendez-vous</button>
       <button class="nav-tab" onclick="afficherOnglet('signalement', this)">🚨 Signaler</button>
       <button class="nav-tab" onclick="afficherOnglet('mon-compte', this)">👤 Mon compte</button>
     </div>
@@ -143,6 +145,46 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
           <button type="submit" class="btn-plein">Soumettre</button>
         </form>
       </div>
+    </div>
+    <div id="rendez-vous" class="section">
+      <div style="background:white;border-radius:12px;padding:2rem;box-shadow:var(--ombre);margin-bottom:1rem;">
+        <h3>📅 Prendre un rendez-vous</h3>
+        <form id="form-rdv">
+          <label>Service *
+            <select name="service" required style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ddd;margin-top:0.3rem;">
+              <option value="">Choisir un service...</option>
+              <option>État Civil</option>
+              <option>Urbanisme</option>
+              <option>Transport</option>
+              <option>Santé</option>
+              <option>Éducation</option>
+              <option>Sécurité</option>
+            </select>
+          </label>
+          <label>Date *<input type="date" name="date_rdv" required></label>
+          <label>Heure *
+            <select name="heure" required style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ddd;margin-top:0.3rem;">
+              <option value="">Choisir un créneau...</option>
+              <option>08:00</option>
+              <option>08:30</option>
+              <option>09:00</option>
+              <option>09:30</option>
+              <option>10:00</option>
+              <option>10:30</option>
+              <option>11:00</option>
+              <option>11:30</option>
+              <option>14:00</option>
+              <option>14:30</option>
+              <option>15:00</option>
+              <option>15:30</option>
+              <option>16:00</option>
+            </select>
+          </label>
+          <label>Motif<textarea name="motif" rows="2" placeholder="Décrivez brièvement l'objet de votre rendez-vous"></textarea></label>
+          <button type="submit" class="btn-plein">Confirmer le rendez-vous</button>
+        </form>
+      </div>
+      <div id="liste-rdv"></div>
     </div>
     <div id="signalement" class="section">
       <div style="background:white;border-radius:12px;padding:2rem;box-shadow:var(--ombre);">
@@ -189,6 +231,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
       <button class="nav-tab" onclick="afficherOnglet('messages-agent', this)">✉️ Messages contact</button>
       <button class="nav-tab" onclick="afficherOnglet('signalements-agent', this)">🚨 Signalements</button>
       <button class="nav-tab" onclick="afficherOnglet('alertes-agent', this)">📢 Alertes</button>
+      <button class="nav-tab" onclick="afficherOnglet('rdv-agent', this)">📅 Rendez-vous</button>
       <button class="nav-tab" onclick="afficherOnglet('api-nova', this)">🌌 API Nova Terra</button>
     </div>
     <div id="demandes-agent" class="section active">
@@ -219,6 +262,9 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
         </form>
       </div>
       <div id="liste-alertes-agent"></div>
+    </div>
+    <div id="rdv-agent" class="section">
+      <div id="liste-rdv-agent"></div>
     </div>
     <div id="api-nova" class="section">
       <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);margin-bottom:1rem;">

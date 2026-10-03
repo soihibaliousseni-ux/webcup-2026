@@ -1,4 +1,3 @@
-
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -6,6 +5,17 @@ const { pool } = require('../config/db');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_a_changer';
+
+// F37 Anti-brute force
+const tentatives = {};
+function verifierTentatives(email) {
+  const now = Date.now();
+  if (!tentatives[email]) tentatives[email] = { count: 0, lastAttempt: now };
+  if (now - tentatives[email].lastAttempt > 15 * 60 * 1000) {
+    tentatives[email] = { count: 0, lastAttempt: now };
+  }
+  return tentatives[email].count;
+}
 
 router.post('/register', async (req, res) => {
   try {
@@ -34,15 +44,25 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, mot_de_passe } = req.body;
+
+    // Vérifier tentatives F37
+    if (verifierTentatives(email) >= 5) {
+      return res.status(429).json({ erreur: '🔒 Trop de tentatives. Réessayez dans 15 minutes.' });
+    }
+
     const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
     if (rows.length === 0) {
+      if (!tentatives[email]) tentatives[email] = { count: 0, lastAttempt: Date.now() };
+      tentatives[email].count++;
       return res.status(401).json({ erreur: 'Email ou mot de passe incorrect' });
     }
     const user = rows[0];
     const valide = await bcrypt.compare(mot_de_passe, user.mot_de_passe);
     if (!valide) {
-      return res.status(401).json({ erreur: 'Email ou mot de passe incorrect' });
+      tentatives[email].count++;
+      return res.status(401).json({ erreur: `Email ou mot de passe incorrect (${tentatives[email].count}/5 tentatives)` });
     }
+    tentatives[email] = { count: 0, lastAttempt: Date.now() };
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, user: { id: user.id, nom: user.nom, email: user.email, role: user.role } });
   } catch (err) {
@@ -63,6 +83,7 @@ function verifierToken(req, res, next) {
     res.status(403).json({ erreur: 'Token invalide ou expiré' });
   }
 }
+
 // Suppression compte F33
 router.delete('/compte', verifierToken, async (req, res) => {
   try {

@@ -30,7 +30,9 @@ if (id === 'alertes-agent') { chargerAlertesAgent(); }
   if (id === 'api-nova') chargerAPINova();
   if (id === 'mes-demandes') chargerMesDemandes();
   if (id === 'services-citoyen') chargerServices('liste-services-citoyen');
-  if (id === 'transports') chargerTransports();
+   if (id === 'transports') chargerTransports();
+  if (id === 'rendez-vous') { chargerMesRdv(); }
+  if (id === 'rdv-agent') chargerRdvAgent();
   if (id === 'annonces-citoyen') chargerAnnonces('liste-annonces-citoyen');
 }
 
@@ -602,4 +604,77 @@ async function chargerTransports() {
       </div>
     `).join('');
   } catch { el.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
+}
+
+// RENDEZ-VOUS F39 F40
+document.getElementById('form-rdv') && document.getElementById('form-rdv').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.textContent = '...'; btn.disabled = true;
+  try {
+    const res = await fetch(`${API}/nova/rendez-vous`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(data) });
+    const json = await res.json();
+    if (res.ok) {
+      afficherToast('📅 ' + json.message);
+      e.target.reset();
+      chargerMesRdv();
+    } else afficherToast(json.erreur || 'Erreur', 'erreur');
+  } catch { afficherToast('Erreur serveur', 'erreur'); }
+  finally { btn.textContent = 'Confirmer le rendez-vous'; btn.disabled = false; }
+});
+
+async function chargerMesRdv() {
+  const el = document.getElementById('liste-rdv');
+  if (!el) return;
+  try {
+    const res = await fetch(`${API}/nova/rendez-vous`, { headers: { Authorization: `Bearer ${token}` } });
+    const rdvs = await res.json();
+    if (rdvs.length === 0) { el.innerHTML = '<p class="etat-vide">Aucun rendez-vous prévu</p>'; return; }
+    el.innerHTML = '<h3 style="margin-bottom:1rem;">Mes rendez-vous</h3>' + rdvs.map(r => `
+      <div class="rdv-card">
+        <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:0.5rem;">
+          <div>
+            <h3>📅 ${echapper(r.service)}</h3>
+            <p style="color:var(--gris-texte);font-size:0.9rem;">📆 ${new Date(r.date_rdv).toLocaleDateString('fr-FR')} à ${echapper(r.heure)}</p>
+          </div>
+          <span class="badge badge-resolu">${echapper(r.statut)}</span>
+        </div>
+        ${r.motif ? `<p style="margin-top:0.5rem;font-size:0.9rem;">${echapper(r.motif)}</p>` : ''}
+      </div>
+    `).join('');
+  } catch {}
+}
+
+async function chargerRdvAgent() {
+  const el = document.getElementById('liste-rdv-agent');
+  if (!el) return;
+  el.innerHTML = '<p class="etat-vide">⏳ Chargement...</p>';
+  try {
+    const res = await fetch(`${API}/nova/rendez-vous`, { headers: { Authorization: `Bearer ${token}` } });
+    const rdvs = await res.json();
+    if (rdvs.length === 0) { el.innerHTML = '<p class="etat-vide">Aucun rendez-vous</p>'; return; }
+    el.innerHTML = `
+      <table style="width:100%;border-collapse:collapse;background:white;border-radius:12px;overflow:hidden;box-shadow:var(--ombre);">
+        <thead style="background:var(--lagon-500);color:white;">
+          <tr>
+            <th style="padding:1rem;text-align:left;">Citoyen</th>
+            <th style="padding:1rem;text-align:left;">Service</th>
+            <th style="padding:1rem;text-align:left;">Date</th>
+            <th style="padding:1rem;text-align:left;">Heure</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rdvs.map(r => `
+            <tr style="border-bottom:1px solid #f0f0f0;">
+              <td style="padding:1rem;">${echapper(r.citoyen || '')}</td>
+              <td style="padding:1rem;">${echapper(r.service)}</td>
+              <td style="padding:1rem;">${new Date(r.date_rdv).toLocaleDateString('fr-FR')}</td>
+              <td style="padding:1rem;">${echapper(r.heure)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch { el.innerHTML = '<p class="etat-vide">Erreur</p>'; }
 }
