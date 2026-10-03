@@ -269,7 +269,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
       <button class="modale-fermer" id="fermer-modale">&times;</button>
       <div id="formulaire-connexion">
         <h2>Connexion</h2>
-        <form id="form-login">
+        <form id="form-login" method="post">
           <label for="login-email">Email<input id="login-email" type="email" name="email" required></label>
           <label for="login-mdp">Mot de passe<input id="login-mdp" type="password" name="mot_de_passe" required></label>
           <p class="erreur" id="erreur-login" role="alert"></p>
@@ -279,7 +279,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
       </div>
       <div id="formulaire-inscription" class="hidden">
         <h2>Créer un compte citoyen</h2>
-        <form id="form-register">
+        <form id="form-register" method="post">
           <label for="register-nom">Nom complet<input id="register-nom" type="text" name="nom" required></label>
           <label for="register-email">Email<input id="register-email" type="email" name="email" required></label>
           <label for="register-mdp">Mot de passe<input id="register-mdp" type="password" name="mot_de_passe" required minlength="6"></label>
