@@ -169,4 +169,22 @@ async function logAudit(pool, agent_id, agent_nom, action, details) {
 }
 module.exports.logAudit = logAudit;
 
+// F34 Admin gestion comptes
+router.get('/admin/citoyens', verifierToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ erreur: 'Accès refusé' });
+    const [rows] = await pool.query('SELECT id, nom, email, role, created_at FROM users ORDER BY created_at DESC');
+    res.json(rows);
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
+router.put('/admin/citoyens/:id/role', verifierToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ erreur: 'Accès refusé' });
+    const { role } = req.body;
+    await pool.query('UPDATE users SET role = ? WHERE id = ?', [role, req.params.id]);
+    res.json({ message: 'Rôle mis à jour' });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
 module.exports = router;

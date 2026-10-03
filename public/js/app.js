@@ -32,7 +32,8 @@ function afficherOnglet(id, btn) {
   if (id === 'transports') chargerTransports();
   if (id === 'rendez-vous') { chargerMesRdv(); }
     if (id === 'rdv-agent') chargerRdvAgent();
-  if (id === 'audit-agent') chargerAudit();
+    if (id === 'audit-agent') chargerAudit();
+  if (id === 'admin-citoyens') chargerAdminCitoyens();
   if (id === 'annonces-citoyen') chargerAnnonces('liste-annonces-citoyen');
 }
 
@@ -727,4 +728,54 @@ async function chargerAudit() {
       `).join('')}
     `;
   } catch { el.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
+}
+
+// F34 ADMIN GESTION COMPTES
+async function chargerAdminCitoyens() {
+  const el = document.getElementById('liste-admin-citoyens');
+  if (!el) return;
+  el.innerHTML = '<p class="etat-vide">⏳ Chargement...</p>';
+  try {
+    const res = await fetch(`${API}/nova/admin/citoyens`, { headers: { Authorization: `Bearer ${token}` } });
+    const citoyens = await res.json();
+    if (citoyens.length === 0) { el.innerHTML = '<p class="etat-vide">Aucun compte</p>'; return; }
+    el.innerHTML = `
+      <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);margin-bottom:1rem;">
+        <h3>👑 Gestion des comptes — ${citoyens.length} utilisateurs</h3>
+      </div>
+      <table style="width:100%;border-collapse:collapse;background:white;border-radius:12px;overflow:hidden;box-shadow:var(--ombre);">
+        <thead style="background:var(--lagon-500);color:white;">
+          <tr>
+            <th style="padding:1rem;text-align:left;">Nom</th>
+            <th style="padding:1rem;text-align:left;">Email</th>
+            <th style="padding:1rem;text-align:left;">Rôle</th>
+            <th style="padding:1rem;text-align:left;">Inscrit le</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${citoyens.map(c => `
+            <tr style="border-bottom:1px solid #f0f0f0;">
+              <td style="padding:1rem;font-weight:600;">${echapper(c.nom)}</td>
+              <td style="padding:1rem;font-size:0.85rem;">${echapper(c.email)}</td>
+              <td style="padding:1rem;">
+                <select onchange="majRoleCitoyen(${c.id}, this.value)" style="padding:0.4rem;border-radius:8px;border:1px solid #ddd;font-size:0.85rem;">
+                  <option value="citoyen" ${c.role === 'citoyen' ? 'selected' : ''}>👤 Citoyen</option>
+                  <option value="agent" ${c.role === 'agent' ? 'selected' : ''}>⚙️ Agent</option>
+                  <option value="admin" ${c.role === 'admin' ? 'selected' : ''}>👑 Admin</option>
+                </select>
+              </td>
+              <td style="padding:1rem;font-size:0.85rem;color:var(--gris-texte);">${new Date(c.created_at).toLocaleDateString('fr-FR')}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch { el.innerHTML = '<p class="etat-vide">Erreur — connexion admin requise</p>'; }
+}
+
+async function majRoleCitoyen(id, role) {
+  try {
+    await fetch(`${API}/nova/admin/citoyens/${id}/role`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ role }) });
+    afficherToast('✅ Rôle mis à jour !');
+  } catch { afficherToast('Erreur', 'erreur'); }
 }

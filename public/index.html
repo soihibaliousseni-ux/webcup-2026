@@ -279,6 +279,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
       <button class="nav-tab" onclick="afficherOnglet('rdv-agent', this)">📅 Rendez-vous</button>
       <button class="nav-tab" onclick="afficherOnglet('api-nova', this)">🌌 API Nova Terra</button>
       <button class="nav-tab" onclick="afficherOnglet('audit-agent', this)">📋 Journal</button>
+<button class="nav-tab" onclick="afficherOnglet('admin-citoyens', this)">👑 Admin</button>
     </div>
     <div id="demandes-agent" class="section active">
       <div id="stats-agent" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem;"></div>
@@ -312,8 +313,11 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
     <div id="rdv-agent" class="section">
       <div id="liste-rdv-agent"></div>
     </div>
-    <div id="audit-agent" class="section">
+       <div id="audit-agent" class="section">
       <div id="liste-audit"></div>
+    </div>
+    <div id="admin-citoyens" class="section">
+      <div id="liste-admin-citoyens"></div>
     </div>
     <div id="api-nova" class="section">
       <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);margin-bottom:1rem;">
