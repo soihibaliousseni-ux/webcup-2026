@@ -332,6 +332,7 @@ async function chargerDemandesAgent() {
                   <option value="en_cours" ${d.statut === 'en_cours' ? 'selected' : ''}>En cours</option>
                   <option value="resolu" ${d.statut === 'resolu' ? 'selected' : ''}>Traité</option>
                 </select>
+                <button onclick="repondredemande(${d.id})" style="background:#e8f4f8;border:none;padding:0.3rem 0.6rem;border-radius:6px;cursor:pointer;font-size:0.8rem;margin-top:0.3rem;">💬 Répondre</button>
               </td>
             </tr>
           `).join('')}
@@ -1088,4 +1089,16 @@ async function filtrerDemandesAgent() {
       </table>
     `;
   } catch { el.innerHTML = '<p class="etat-vide">Erreur</p>'; }
+}
+
+// F84 REPONSE AGENT
+async function repondredemande(id) {
+  const reponse = prompt('Votre réponse au citoyen :');
+  if (!reponse) return;
+  try {
+    const res = await fetch(`${API}/nova/demandes/${id}/reponse`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ reponse }) });
+    const json = await res.json();
+    if (res.ok) { afficherToast('💬 ' + json.message); chargerDemandesAgent(); }
+    else afficherToast(json.erreur || 'Erreur', 'erreur');
+  } catch { afficherToast('Erreur serveur', 'erreur'); }
 }

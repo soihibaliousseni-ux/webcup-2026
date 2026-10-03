@@ -307,4 +307,16 @@ router.get('/demandes/filtrer', verifierToken, async (req, res) => {
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
 
+// F84 Réponse agent à une demande
+router.post('/demandes/:id/reponse', verifierToken, async (req, res) => {
+  try {
+    if (req.user.role === 'citoyen') return res.status(403).json({ erreur: 'Accès refusé' });
+    const { reponse } = req.body;
+    await pool.query('UPDATE demandes_citoyens SET reponse_agent = ?, statut = "resolu" WHERE id = ?', [reponse, req.params.id]);
+    await pool.query('INSERT INTO audit_log (agent_id, agent_nom, action, details) VALUES (?, ?, ?, ?)',
+      [req.user.id, req.user.email, 'Réponse agent', `Demande #${req.params.id} — ${reponse.substring(0, 50)}`]);
+    res.json({ message: '✅ Réponse envoyée au citoyen !' });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
 module.exports = router;
