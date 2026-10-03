@@ -187,4 +187,22 @@ router.put('/admin/citoyens/:id/role', verifierToken, async (req, res) => {
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
 
+// F50 Dashboard activité
+router.get('/dashboard', verifierToken, async (req, res) => {
+  try {
+    if (req.user.role === 'citoyen') return res.status(403).json({ erreur: 'Accès refusé' });
+    const [[stats]] = await pool.query(`SELECT 
+      (SELECT COUNT(*) FROM demandes_citoyens) as total_demandes,
+      (SELECT COUNT(*) FROM demandes_citoyens WHERE statut='en_attente') as en_attente,
+      (SELECT COUNT(*) FROM demandes_citoyens WHERE statut='en_cours') as en_cours,
+      (SELECT COUNT(*) FROM demandes_citoyens WHERE statut='resolu') as resolus,
+      (SELECT COUNT(*) FROM users WHERE role='citoyen') as total_citoyens,
+      (SELECT COUNT(*) FROM signalements) as total_signalements,
+      (SELECT COUNT(*) FROM rendez_vous) as total_rdv,
+      (SELECT COUNT(*) FROM alertes WHERE actif=1) as alertes_actives
+    `);
+    res.json(stats);
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
 module.exports = router;

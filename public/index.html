@@ -272,7 +272,8 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
       <h2>⚙️ Espace agent — <span id="nom-agent"></span></h2>
     </div>
     <div class="nav-tabs" role="tablist">
-      <button class="nav-tab active" onclick="afficherOnglet('demandes-agent', this)">📋 Demandes citoyens</button>
+      <button class="nav-tab active" onclick="afficherOnglet('dashboard-agent', this)">📊 Dashboard</button>
+<button class="nav-tab" onclick="afficherOnglet('demandes-agent', this)">📋 Demandes citoyens</button>
       <button class="nav-tab" onclick="afficherOnglet('messages-agent', this)">✉️ Messages contact</button>
       <button class="nav-tab" onclick="afficherOnglet('signalements-agent', this)">🚨 Signalements</button>
       <button class="nav-tab" onclick="afficherOnglet('alertes-agent', this)">📢 Alertes</button>
@@ -281,7 +282,10 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
       <button class="nav-tab" onclick="afficherOnglet('audit-agent', this)">📋 Journal</button>
 <button class="nav-tab" onclick="afficherOnglet('admin-citoyens', this)">👑 Admin</button>
     </div>
-    <div id="demandes-agent" class="section active">
+        <div id="dashboard-agent" class="section active">
+      <div id="contenu-dashboard"></div>
+    </div>
+    <div id="demandes-agent" class="section">
       <div id="stats-agent" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem;"></div>
       <div id="liste-demandes-agent"></div>
     </div>

@@ -22,6 +22,7 @@ function afficherOnglet(id, btn) {
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
   if (aidesOnglets && aidesOnglets[id]) afficherAide(aidesOnglets[id]);
+    if (id === 'dashboard-agent') chargerDashboard();
   if (id === 'demandes-agent') { chargerDemandesAgent(); chargerStatsAgent(); }
   if (id === 'messages-agent') chargerMessagesAgent();
   if (id === 'signalements-agent') chargerSignalementsAgent();
@@ -78,6 +79,7 @@ function majAffichage() {
       document.getElementById('nom-agent').textContent = utilisateur.nom;
       roleDisplay.textContent = utilisateur.role === 'admin' ? '👑 Admin' : '⚙️ Agent';
       roleDisplay.className = 'role-badge ' + (utilisateur.role === 'admin' ? 'role-admin' : 'role-agent');
+     chargerDashboard();
       chargerDemandesAgent();
       chargerStatsAgent();
     } else {
@@ -778,4 +780,37 @@ async function majRoleCitoyen(id, role) {
     await fetch(`${API}/nova/admin/citoyens/${id}/role`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ role }) });
     afficherToast('✅ Rôle mis à jour !');
   } catch { afficherToast('Erreur', 'erreur'); }
+}
+
+// F50 DASHBOARD ACTIVITE
+async function chargerDashboard() {
+  const el = document.getElementById('contenu-dashboard');
+  if (!el) return;
+  el.innerHTML = '<p class="etat-vide">⏳ Chargement...</p>';
+  try {
+    const res = await fetch(`${API}/nova/dashboard`, { headers: { Authorization: `Bearer ${token}` } });
+    const d = await res.json();
+    el.innerHTML = `
+      <div style="margin-bottom:1.5rem;">
+        <h3 style="margin-bottom:1rem;">📊 Tableau de bord — ${new Date().toLocaleDateString('fr-FR')}</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;">
+          <div class="stat-card"><div class="stat-nombre" style="color:#856404;">${d.en_attente}</div><div class="stat-label">⏳ En attente</div></div>
+          <div class="stat-card"><div class="stat-nombre" style="color:#004085;">${d.en_cours}</div><div class="stat-label">🔄 En cours</div></div>
+          <div class="stat-card"><div class="stat-nombre" style="color:#155724;">${d.resolus}</div><div class="stat-label">✅ Résolus</div></div>
+          <div class="stat-card"><div class="stat-nombre" style="color:var(--lagon-700);">${d.total_demandes}</div><div class="stat-label">📋 Demandes</div></div>
+          <div class="stat-card"><div class="stat-nombre" style="color:var(--lagon-700);">${d.total_citoyens}</div><div class="stat-label">👤 Citoyens</div></div>
+          <div class="stat-card"><div class="stat-nombre" style="color:#c0392b;">${d.total_signalements}</div><div class="stat-label">🚨 Signalements</div></div>
+          <div class="stat-card"><div class="stat-nombre" style="color:#27ae60;">${d.total_rdv}</div><div class="stat-label">📅 Rendez-vous</div></div>
+          <div class="stat-card"><div class="stat-nombre" style="color:#c0392b;">${d.alertes_actives}</div><div class="stat-label">📢 Alertes actives</div></div>
+        </div>
+      </div>
+      <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);">
+        <h4>📈 Taux de résolution</h4>
+        <div style="margin-top:1rem;background:#f0f0f0;border-radius:20px;height:20px;overflow:hidden;">
+          <div style="background:var(--lagon-500);height:100%;width:${d.total_demandes > 0 ? Math.round((d.resolus/d.total_demandes)*100) : 0}%;transition:width 1s;border-radius:20px;"></div>
+        </div>
+        <p style="text-align:center;margin-top:0.5rem;font-weight:600;">${d.total_demandes > 0 ? Math.round((d.resolus/d.total_demandes)*100) : 0}% des demandes traitées</p>
+      </div>
+    `;
+  } catch { el.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
 }
