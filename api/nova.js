@@ -43,7 +43,7 @@ router.get('/demandes', verifierToken, async (req, res) => {
   try {
     let rows;
     if (req.user.role === 'admin' || req.user.role === 'agent') {
-      [rows] = await pool.query('SELECT d.*, u.nom as citoyen FROM demandes_citoyens d JOIN users u ON d.user_id = u.id ORDER BY d.created_at DESC');
+      [rows] = await pool.query('SELECT d.id, d.sujet, d.message, d.statut, d.created_at, u.nom as citoyen FROM demandes_citoyens d LEFT JOIN users u ON d.user_id = u.id ORDER BY d.created_at DESC');
     } else {
       [rows] = await pool.query('SELECT * FROM demandes_citoyens WHERE user_id = ? ORDER BY created_at DESC', [req.user.id]);
     }
