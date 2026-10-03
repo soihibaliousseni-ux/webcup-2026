@@ -30,6 +30,7 @@ if (id === 'alertes-agent') { chargerAlertesAgent(); }
   if (id === 'api-nova') chargerAPINova();
   if (id === 'mes-demandes') chargerMesDemandes();
   if (id === 'services-citoyen') chargerServices('liste-services-citoyen');
+  if (id === 'transports') chargerTransports();
   if (id === 'annonces-citoyen') chargerAnnonces('liste-annonces-citoyen');
 }
 
@@ -574,4 +575,31 @@ async function supprimerMonCompte() {
       setTimeout(() => majAffichage(), 1500);
     }
   } catch { afficherToast('Erreur serveur', 'erreur'); }
+}
+
+// TRANSPORTS F36
+async function chargerTransports() {
+  const el = document.getElementById('liste-transports');
+  if (!el) return;
+  el.innerHTML = '<p class="etat-vide">⏳ Chargement...</p>';
+  try {
+    const res = await fetch(`${API}/nova/transports`);
+    const transports = await res.json();
+    if (transports.length === 0) { el.innerHTML = '<p class="etat-vide">Aucune ligne disponible</p>'; return; }
+    el.innerHTML = transports.map(t => `
+      <div class="transport-card">
+        <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:0.5rem;">
+          <div>
+            <h3>🚀 ${echapper(t.ligne)}</h3>
+            <p style="color:var(--gris-texte);font-size:0.9rem;">📍 ${echapper(t.destination)}</p>
+          </div>
+          <span class="badge badge-cours">${echapper(t.type)}</span>
+        </div>
+        <div style="margin-top:1rem;padding:0.8rem;background:#f8f9fa;border-radius:8px;">
+          <p style="font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">🕐 Horaires :</p>
+          <p style="font-size:0.9rem;">${echapper(t.horaires)}</p>
+        </div>
+      </div>
+    `).join('');
+  } catch { el.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
 }

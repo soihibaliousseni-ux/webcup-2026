@@ -123,4 +123,12 @@ router.delete('/alertes/:id', verifierToken, async (req, res) => {
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
 
+// Transports F36
+router.get('/transports', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM transports ORDER BY ligne');
+    res.json(rows);
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
 module.exports = router;
