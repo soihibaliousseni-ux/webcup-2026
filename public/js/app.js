@@ -134,6 +134,11 @@ document.getElementById('form-login').addEventListener('submit', async (e) => {
     localStorage.setItem('token', token);
     localStorage.setItem('utilisateur', JSON.stringify(utilisateur));
     document.getElementById('modale-auth').classList.add('hidden');
+    // F54 Alerte nouvelle connexion
+    const derniere = localStorage.getItem('derniere-connexion');
+    const maintenant = new Date().toLocaleString('fr-FR');
+    if (derniere) afficherToast(`🔔 Connexion détectée — Dernière : ${derniere}`, 'succes');
+    localStorage.setItem('derniere-connexion', maintenant);
     afficherToast('Bienvenue sur Terra Nova, ' + utilisateur.nom + ' !');
     majAffichage();
   } catch { erreurEl.textContent = 'Erreur serveur, réessayez'; }
@@ -242,7 +247,6 @@ async function chargerMesDemandes() {
   } catch { el.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
 }
 
-// F52 SOUTENIR DEMANDE
 async function soutenirDemande(id, btn) {
   btn.disabled = true;
   try {
@@ -821,7 +825,7 @@ async function chargerDashboard() {
     `;
   } catch { el.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
 }
-// F56 EXPORT DEMANDES
+
 async function exporterMesDemandes() {
   try {
     const res = await fetch(`${API}/nova/demandes/export`, { headers: { Authorization: `Bearer ${token}` } });
@@ -837,7 +841,6 @@ async function exporterMesDemandes() {
   } catch { afficherToast('Erreur export', 'erreur'); }
 }
 
-// F55 EXPORT DONNEES PERSONNELLES
 async function exporterMesDonnees() {
   try {
     const res = await fetch(`${API}/nova/profil/export`, { headers: { Authorization: `Bearer ${token}` } });
