@@ -34,13 +34,16 @@ function afficherOnglet(id, btn) {
   if (id === 'rendez-vous') { chargerMesRdv(); }
   if (id === 'rdv-agent') chargerRdvAgent();
   if (id === 'audit-agent') chargerAudit();
-    if (id === 'admin-citoyens') chargerAdminCitoyens();
-    if (id === 'services-agent') chargerServicesAgent();
+  if (id === 'admin-citoyens') chargerAdminCitoyens();
+  if (id === 'services-agent') chargerServicesAgent();
   if (id === 'projets') chargerProjets();
   if (id === 'annonces-citoyen') chargerAnnonces('liste-annonces-citoyen');
 }
 
-function ouvrirModaleService(nom, description, icone) {
+let serviceIdCourant = 0;
+
+function ouvrirModaleService(nom, description, icone, id) {
+  serviceIdCourant = id || 0;
   document.getElementById('detail-service').innerHTML = `
     <div style="text-align:center;margin-bottom:1.5rem;">
       <div style="font-size:3rem;">${echapper(icone)}</div>
@@ -51,8 +54,31 @@ function ouvrirModaleService(nom, description, icone) {
       <p style="font-size:0.9rem;color:#666;">Pour accéder à ce service, connectez-vous à votre espace citoyen ou soumettez une demande.</p>
     </div>
     <button onclick="fermerModaleService();ouvrirModaleAuth('login');" class="btn-plein" style="width:100%;margin-top:1rem;">Accéder à mon espace</button>
+    ${token ? `<div style="margin-top:1rem;border-top:1px solid #eee;padding-top:1rem;">
+      <p style="font-size:0.9rem;font-weight:600;">⭐ Laisser un avis</p>
+      <select id="note-service" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ddd;margin:0.5rem 0;">
+        <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+        <option value="4">⭐⭐⭐⭐ Bien</option>
+        <option value="3">⭐⭐⭐ Moyen</option>
+        <option value="2">⭐⭐ Insuffisant</option>
+        <option value="1">⭐ Mauvais</option>
+      </select>
+      <textarea id="commentaire-service" placeholder="Votre commentaire..." rows="2" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ddd;box-sizing:border-box;font-family:Inter,sans-serif;"></textarea>
+      <button onclick="envoyerCommentaireService()" class="btn-ghost" style="width:100%;margin-top:0.5rem;">Envoyer mon avis</button>
+    </div>` : ''}
   `;
   document.getElementById('modale-service').classList.remove('hidden');
+}
+
+async function envoyerCommentaireService() {
+  const note = document.getElementById('note-service').value;
+  const commentaire = document.getElementById('commentaire-service').value;
+  try {
+    const res = await fetch(`${API}/nova/services/${serviceIdCourant}/commentaire`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ note, commentaire }) });
+    const json = await res.json();
+    if (res.ok) { afficherToast('⭐ ' + json.message); fermerModaleService(); }
+    else afficherToast(json.erreur || 'Erreur', 'erreur');
+  } catch { afficherToast('Erreur serveur', 'erreur'); }
 }
 
 function fermerModaleService() {
@@ -136,7 +162,6 @@ document.getElementById('form-login').addEventListener('submit', async (e) => {
     localStorage.setItem('token', token);
     localStorage.setItem('utilisateur', JSON.stringify(utilisateur));
     document.getElementById('modale-auth').classList.add('hidden');
-    // F54 Alerte nouvelle connexion
     const derniere = localStorage.getItem('derniere-connexion');
     const maintenant = new Date().toLocaleString('fr-FR');
     if (derniere) afficherToast(`🔔 Connexion détectée — Dernière : ${derniere}`, 'succes');
@@ -175,8 +200,9 @@ async function chargerServices(targetId) {
     const res = await fetch(`${API}/nova/services`);
     const services = await res.json();
     el.innerHTML = services.map((s, i) => `
-      <div class="service-card ${i < 2 ? 'featured' : ''}" onclick="ouvrirModaleService('${echapper(s.nom)}','${echapper(s.description)}','${echapper(s.icone)}')">
+      <div class="service-card ${i < 2 ? 'featured' : ''}" onclick="ouvrirModaleService('${echapper(s.nom)}','${echapper(s.description)}','${echapper(s.icone)}',${s.id})">
         ${i < 2 ? '<span style="font-size:0.7rem;background:var(--corail);color:white;padding:0.2rem 0.5rem;border-radius:10px;display:inline-block;margin-bottom:0.5rem;">⭐ Populaire</span>' : ''}
+        ${s.statut && s.statut !== 'actif' ? `<span style="font-size:0.7rem;background:${s.statut === 'maintenance' ? '#f39c12' : '#c0392b'};color:white;padding:0.2rem 0.5rem;border-radius:10px;display:inline-block;margin-bottom:0.5rem;">${s.statut === 'maintenance' ? '🔧 Maintenance' : '❌ Indisponible'}</span>` : ''}
         <div class="icone">${echapper(s.icone)}</div>
         <h3>${echapper(s.nom)}</h3>
         <p style="color:var(--gris-texte);font-size:0.9rem;">${echapper(s.description)}</p>
@@ -218,9 +244,7 @@ document.getElementById('form-contact').addEventListener('submit', async (e) => 
       conf.style.display = 'block';
       setTimeout(() => conf.style.display = 'none', 5000);
       afficherToast('Message envoyé à l\'administration !');
-    } else {
-      afficherToast(json.erreur || 'Erreur envoi', 'erreur');
-    }
+    } else { afficherToast(json.erreur || 'Erreur envoi', 'erreur'); }
   } catch { afficherToast('Erreur serveur', 'erreur'); }
   finally { btn.textContent = 'Envoyer'; btn.disabled = false; }
 });
@@ -254,10 +278,8 @@ async function soutenirDemande(id, btn) {
   try {
     const res = await fetch(`${API}/nova/demandes/${id}/soutenir`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
     const json = await res.json();
-    if (res.ok) {
-      afficherToast('👍 ' + json.message);
-      btn.textContent = `👍 Soutenir (${json.soutiens})`;
-    } else afficherToast(json.erreur || 'Erreur', 'erreur');
+    if (res.ok) { afficherToast('👍 ' + json.message); btn.textContent = `👍 Soutenir (${json.soutiens})`; }
+    else afficherToast(json.erreur || 'Erreur', 'erreur');
   } catch { afficherToast('Erreur serveur', 'erreur'); }
   finally { btn.disabled = false; }
 }
@@ -387,22 +409,10 @@ async function chargerStatsAgent() {
     const res = await fetch(`${API}/nova/stats`, { headers: { Authorization: `Bearer ${token}` } });
     const stats = await res.json();
     el.innerHTML = `
-      <div class="stat-card">
-        <div class="stat-nombre" style="color:#856404;">${stats.en_attente}</div>
-        <div class="stat-label">⏳ En attente</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-nombre" style="color:#004085;">${stats.en_cours}</div>
-        <div class="stat-label">🔄 En cours</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-nombre" style="color:#155724;">${stats.resolu}</div>
-        <div class="stat-label">✅ Résolus</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-nombre" style="color:var(--lagon-700);">${stats.total}</div>
-        <div class="stat-label">📋 Total</div>
-      </div>
+      <div class="stat-card"><div class="stat-nombre" style="color:#856404;">${stats.en_attente}</div><div class="stat-label">⏳ En attente</div></div>
+      <div class="stat-card"><div class="stat-nombre" style="color:#004085;">${stats.en_cours}</div><div class="stat-label">🔄 En cours</div></div>
+      <div class="stat-card"><div class="stat-nombre" style="color:#155724;">${stats.resolu}</div><div class="stat-label">✅ Résolus</div></div>
+      <div class="stat-card"><div class="stat-nombre" style="color:var(--lagon-700);">${stats.total}</div><div class="stat-label">📋 Total</div></div>
     `;
   } catch { }
 }
@@ -489,11 +499,7 @@ async function chargerLangues() {
         const texte = el.childNodes[0]?.textContent?.trim();
         if (!texte || texte.length < 2 || texte.length > 100) continue;
         try {
-          const res = await fetch(`${API}/traduction`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify({ texte, langue_cible: langue })
-          });
+          const res = await fetch(`${API}/traduction`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ texte, langue_cible: langue }) });
           const json = await res.json();
           if (json.traduction && el.childNodes[0]) el.childNodes[0].textContent = json.traduction;
         } catch {}
@@ -532,10 +538,7 @@ async function chargerAlertesAgent() {
     el.innerHTML = alertes.map(a => `
       <div class="annonce-card" style="border-left:4px solid #c0392b;">
         <div style="display:flex;justify-content:space-between;align-items:start;">
-          <div>
-            <h3>${echapper(a.titre)}</h3>
-            <span class="badge badge-attente">${echapper(a.type)}</span>
-          </div>
+          <div><h3>${echapper(a.titre)}</h3><span class="badge badge-attente">${echapper(a.type)}</span></div>
           <button onclick="supprimerAlerte(${a.id}, this)" style="background:#f8d7da;border:none;padding:0.4rem 0.8rem;border-radius:8px;cursor:pointer;color:#721c24;">Désactiver</button>
         </div>
         <p style="margin-top:0.5rem;">${echapper(a.message)}</p>
@@ -635,11 +638,8 @@ document.getElementById('form-rdv') && document.getElementById('form-rdv').addEv
   try {
     const res = await fetch(`${API}/nova/rendez-vous`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(data) });
     const json = await res.json();
-    if (res.ok) {
-      afficherToast('📅 ' + json.message);
-      e.target.reset();
-      chargerMesRdv();
-    } else afficherToast(json.erreur || 'Erreur', 'erreur');
+    if (res.ok) { afficherToast('📅 ' + json.message); e.target.reset(); chargerMesRdv(); }
+    else afficherToast(json.erreur || 'Erreur', 'erreur');
   } catch { afficherToast('Erreur serveur', 'erreur'); }
   finally { btn.textContent = 'Confirmer le rendez-vous'; btn.disabled = false; }
 });
@@ -835,9 +835,7 @@ async function exporterMesDemandes() {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = 'mes-demandes-terranova.json';
-    a.click();
+    a.href = url; a.download = 'mes-demandes-terranova.json'; a.click();
     URL.revokeObjectURL(url);
     afficherToast('📥 Export téléchargé !');
   } catch { afficherToast('Erreur export', 'erreur'); }
@@ -850,24 +848,20 @@ async function exporterMesDonnees() {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = 'mes-donnees-terranova.json';
-    a.click();
+    a.href = url; a.download = 'mes-donnees-terranova.json'; a.click();
     URL.revokeObjectURL(url);
     afficherToast('📥 Données exportées !');
   } catch { afficherToast('Erreur export', 'erreur'); }
 }
-// D02 F53 CONNEXION OTP SANS MOT DE PASSE
+
 async function demanderOTP() {
   const email = document.getElementById('otp-email').value;
   if (!email) { afficherToast('Entrez votre email', 'erreur'); return; }
   try {
     const res = await fetch(`${API}/auth/otp/demander`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
     const json = await res.json();
-    if (res.ok) {
-      afficherToast(`🔐 Code envoyé ! (démo: ${json.code})`);
-      document.getElementById('zone-code-otp').style.display = 'flex';
-    } else afficherToast(json.erreur || 'Erreur', 'erreur');
+    if (res.ok) { afficherToast(`🔐 Code envoyé ! (démo: ${json.code})`); document.getElementById('zone-code-otp').style.display = 'flex'; }
+    else afficherToast(json.erreur || 'Erreur', 'erreur');
   } catch { afficherToast('Erreur serveur', 'erreur'); }
 }
 
@@ -889,7 +883,6 @@ async function verifierOTP() {
   } catch { afficherToast('Erreur serveur', 'erreur'); }
 }
 
-// F57 F58 F59 F60 MODE ECO
 function toggleEco() {
   document.body.classList.toggle('mode-eco');
   const btn = document.getElementById('btn-eco');
@@ -908,7 +901,6 @@ if (localStorage.getItem('mode-eco') === 'true') {
   if (banniere) banniere.style.display = 'block';
 }
 
-// F63 F64 STATUT SERVICES
 async function chargerServicesAgent() {
   const el = document.getElementById('liste-services-agent');
   if (!el) return;
@@ -951,7 +943,6 @@ async function majStatutService(id, statut) {
   } catch { afficherToast('Erreur', 'erreur'); }
 }
 
-// F65 F66 F67 F68 PROJETS ET VOTES
 async function chargerProjets() {
   const el = document.getElementById('liste-projets');
   if (!el) return;
@@ -1010,7 +1001,6 @@ document.getElementById('form-idee') && document.getElementById('form-idee').add
   finally { btn.textContent = 'Soumettre mon idée'; btn.disabled = false; }
 });
 
-// F71 INSCRIPTION SANS EMAIL
 async function inscriptionSansEmail() {
   const nom = document.getElementById('nom-simple').value;
   if (!nom) { afficherToast('Entrez votre prénom', 'erreur'); return; }
@@ -1022,7 +1012,7 @@ async function inscriptionSansEmail() {
       localStorage.setItem('token', token);
       localStorage.setItem('utilisateur', JSON.stringify(utilisateur));
       document.getElementById('modale-auth').classList.add('hidden');
-      afficherToast(`✅ Compte créé ! ID: ${json.identifiant} | MDP: ${json.mot_de_passe}`);
+      afficherToast(`✅ Compte créé !`);
       alert(`🔐 Notez vos identifiants :\nIdentifiant : ${json.identifiant}\nMot de passe : ${json.mot_de_passe}`);
       majAffichage();
     } else afficherToast(json.erreur || 'Erreur', 'erreur');

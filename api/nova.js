@@ -281,4 +281,14 @@ router.post('/idees', verifierToken, async (req, res) => {
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
 
+// F76 Commentaires services
+router.post('/services/:id/commentaire', verifierToken, async (req, res) => {
+  try {
+    const { commentaire, note } = req.body;
+    await pool.query('INSERT INTO audit_log (agent_id, agent_nom, action, details) VALUES (?, ?, ?, ?)', 
+      [req.user.id, req.user.email, 'Commentaire service', `Service #${req.params.id} — Note: ${note}/5 — ${commentaire}`]);
+    res.json({ message: '⭐ Merci pour votre avis !' });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
 module.exports = router;
