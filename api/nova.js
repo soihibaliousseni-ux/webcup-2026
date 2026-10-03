@@ -43,9 +43,9 @@ router.get('/demandes', verifierToken, async (req, res) => {
   try {
     let rows;
     if (req.user.role === 'admin' || req.user.role === 'agent') {
-      [rows] = await pool.query('SELECT d.id, d.sujet, d.message, d.statut, d.created_at, u.nom as citoyen FROM demandes_citoyens d LEFT JOIN users u ON d.user_id = u.id ORDER BY d.created_at DESC');
+      [rows] = await pool.query('SELECT d.id, d.sujet, d.message, d.statut, d.created_at, u.nom as citoyen, (SELECT COUNT(*) FROM soutiens WHERE demande_id = d.id) as nb_soutiens FROM demandes_citoyens d LEFT JOIN users u ON d.user_id = u.id ORDER BY d.created_at DESC');
     } else {
-      [rows] = await pool.query('SELECT * FROM demandes_citoyens WHERE user_id = ? ORDER BY created_at DESC', [req.user.id]);
+      [rows] = await pool.query('SELECT d.*, (SELECT COUNT(*) FROM soutiens WHERE demande_id = d.id) as nb_soutiens FROM demandes_citoyens d WHERE d.user_id = ? ORDER BY d.created_at DESC', [req.user.id]);
     }
     res.json(rows);
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
@@ -68,6 +68,7 @@ router.get('/messages', verifierToken, async (req, res) => {
     res.json(rows);
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
+
 // Statistiques agent D17
 router.get('/stats', verifierToken, async (req, res) => {
   try {
@@ -202,6 +203,15 @@ router.get('/dashboard', verifierToken, async (req, res) => {
       (SELECT COUNT(*) FROM alertes WHERE actif=1) as alertes_actives
     `);
     res.json(stats);
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
+// F52 Soutenir une demande
+router.post('/demandes/:id/soutenir', verifierToken, async (req, res) => {
+  try {
+    await pool.query('INSERT IGNORE INTO soutiens (demande_id, user_id) VALUES (?, ?)', [req.params.id, req.user.id]);
+    const [[{count}]] = await pool.query('SELECT COUNT(*) as count FROM soutiens WHERE demande_id = ?', [req.params.id]);
+    res.json({ message: '👍 Soutien enregistré !', soutiens: count });
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
 

@@ -22,7 +22,7 @@ function afficherOnglet(id, btn) {
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
   if (aidesOnglets && aidesOnglets[id]) afficherAide(aidesOnglets[id]);
-    if (id === 'dashboard-agent') chargerDashboard();
+  if (id === 'dashboard-agent') chargerDashboard();
   if (id === 'demandes-agent') { chargerDemandesAgent(); chargerStatsAgent(); }
   if (id === 'messages-agent') chargerMessagesAgent();
   if (id === 'signalements-agent') chargerSignalementsAgent();
@@ -32,8 +32,8 @@ function afficherOnglet(id, btn) {
   if (id === 'services-citoyen') chargerServices('liste-services-citoyen');
   if (id === 'transports') chargerTransports();
   if (id === 'rendez-vous') { chargerMesRdv(); }
-    if (id === 'rdv-agent') chargerRdvAgent();
-    if (id === 'audit-agent') chargerAudit();
+  if (id === 'rdv-agent') chargerRdvAgent();
+  if (id === 'audit-agent') chargerAudit();
   if (id === 'admin-citoyens') chargerAdminCitoyens();
   if (id === 'annonces-citoyen') chargerAnnonces('liste-annonces-citoyen');
 }
@@ -79,7 +79,7 @@ function majAffichage() {
       document.getElementById('nom-agent').textContent = utilisateur.nom;
       roleDisplay.textContent = utilisateur.role === 'admin' ? '👑 Admin' : '⚙️ Agent';
       roleDisplay.className = 'role-badge ' + (utilisateur.role === 'admin' ? 'role-admin' : 'role-agent');
-     chargerDashboard();
+      chargerDashboard();
       chargerDemandesAgent();
       chargerStatsAgent();
     } else {
@@ -233,10 +233,27 @@ async function chargerMesDemandes() {
           <span class="badge badge-${d.statut === 'en_attente' ? 'attente' : d.statut === 'en_cours' ? 'cours' : 'resolu'}">${d.statut.replace('_', ' ')}</span>
         </div>
         <p>${echapper(d.message)}</p>
-        <small style="color:var(--gris-texte);">${new Date(d.created_at).toLocaleDateString('fr-FR')}</small>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
+          <small style="color:var(--gris-texte);">${new Date(d.created_at).toLocaleDateString('fr-FR')}</small>
+          <button onclick="soutenirDemande(${d.id}, this)" style="background:#e8f4f8;border:none;padding:0.4rem 0.8rem;border-radius:8px;cursor:pointer;color:var(--lagon-700);font-size:0.85rem;">👍 Soutenir (${d.nb_soutiens || 0})</button>
+        </div>
       </div>
     `).join('');
   } catch { el.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
+}
+
+// F52 SOUTENIR DEMANDE
+async function soutenirDemande(id, btn) {
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${API}/nova/demandes/${id}/soutenir`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+    const json = await res.json();
+    if (res.ok) {
+      afficherToast('👍 ' + json.message);
+      btn.textContent = `👍 Soutenir (${json.soutiens})`;
+    } else afficherToast(json.erreur || 'Erreur', 'erreur');
+  } catch { afficherToast('Erreur serveur', 'erreur'); }
+  finally { btn.disabled = false; }
 }
 
 document.getElementById('form-demande').addEventListener('submit', async (e) => {
@@ -268,6 +285,7 @@ async function chargerDemandesAgent() {
             <th style="padding:1rem;text-align:left;">Référence</th>
             <th style="padding:1rem;text-align:left;">Citoyen</th>
             <th style="padding:1rem;text-align:left;">Sujet</th>
+            <th style="padding:1rem;text-align:left;">Soutiens</th>
             <th style="padding:1rem;text-align:left;">Date</th>
             <th style="padding:1rem;text-align:left;">Statut</th>
           </tr>
@@ -278,6 +296,7 @@ async function chargerDemandesAgent() {
               <td style="padding:1rem;font-weight:600;color:var(--corail);">TN-${String(d.id).padStart(3,'0')}</td>
               <td style="padding:1rem;">${echapper(d.citoyen)}</td>
               <td style="padding:1rem;">${echapper(d.sujet)}</td>
+              <td style="padding:1rem;text-align:center;">👍 ${d.nb_soutiens || 0}</td>
               <td style="padding:1rem;font-size:0.85rem;color:var(--gris-texte);">${new Date(d.created_at).toLocaleDateString('fr-FR')}</td>
               <td style="padding:1rem;">
                 <select onchange="majStatutDemande(${d.id}, this.value)" style="padding:0.4rem;border-radius:8px;border:1px solid #ddd;font-size:0.85rem;">
@@ -382,7 +401,6 @@ async function chargerStatsAgent() {
   } catch { }
 }
 
-// ACCESSIBILITÉ F21 F23 F24
 let tailleCourante = 100;
 
 function changerTaille(direction) {
@@ -406,7 +424,6 @@ if (localStorage.getItem('contraste-eleve') === 'true') { document.body.classLis
 
 majAffichage();
 
-// SIGNALEMENT F25
 document.getElementById('form-signalement') && document.getElementById('form-signalement').addEventListener('submit', async (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(e.target));
@@ -445,7 +462,6 @@ async function chargerSignalementsAgent() {
   } catch { el.innerHTML = '<p class="etat-vide">Erreur</p>'; }
 }
 
-// LANGUE D14
 async function chargerLangues() {
   try {
     const res = await fetch(`${API}/traduction/langues`);
@@ -483,7 +499,6 @@ async function chargerLangues() {
 
 chargerLangues();
 
-// ALERTES D18 F29 F31
 async function chargerAlertes() {
   const el = document.getElementById('banniere-alertes');
   if (!el) return;
@@ -549,7 +564,6 @@ document.getElementById('form-alerte') && document.getElementById('form-alerte')
 
 chargerAlertes();
 
-// F35 TOOLTIPS AIDE
 function afficherAide(message) {
   const aide = document.createElement('div');
   aide.style.cssText = `position:fixed;top:5rem;right:1rem;padding:1rem 1.5rem;background:#1c6b7a;color:white;border-radius:10px;font-family:Inter,sans-serif;font-size:0.9rem;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.2);max-width:300px;line-height:1.5;`;
@@ -567,7 +581,6 @@ const aidesOnglets = {
 
 const afficherOngletOriginal = afficherOnglet;
 
-// F33 SUPPRESSION COMPTE
 async function supprimerMonCompte() {
   if (!confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.')) return;
   try {
@@ -582,7 +595,6 @@ async function supprimerMonCompte() {
   } catch { afficherToast('Erreur serveur', 'erreur'); }
 }
 
-// TRANSPORTS F36
 async function chargerTransports() {
   const el = document.getElementById('liste-transports');
   if (!el) return;
@@ -609,7 +621,6 @@ async function chargerTransports() {
   } catch { el.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
 }
 
-// RENDEZ-VOUS F39 F40
 document.getElementById('form-rdv') && document.getElementById('form-rdv').addEventListener('submit', async (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(e.target));
@@ -682,7 +693,6 @@ async function chargerRdvAgent() {
   } catch { el.innerHTML = '<p class="etat-vide">Erreur</p>'; }
 }
 
-// F43 MODE DALTONIEN
 function toggleDaltonien() {
   document.body.classList.toggle('daltonien');
   const btn = document.getElementById('btn-dalton');
@@ -696,12 +706,11 @@ if (localStorage.getItem('daltonien') === 'true') {
   document.getElementById('btn-dalton') && document.getElementById('btn-dalton').classList.add('actif');
 }
 
-// D12 ONBOARDING
 function fermerOnboarding() {
   document.getElementById('modale-onboarding').classList.add('hidden');
   localStorage.setItem('onboarding-done', 'true');
 }
-// AUDIT LOG F47 F48
+
 async function chargerAudit() {
   const el = document.getElementById('liste-audit');
   if (!el) return;
@@ -732,7 +741,6 @@ async function chargerAudit() {
   } catch { el.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
 }
 
-// F34 ADMIN GESTION COMPTES
 async function chargerAdminCitoyens() {
   const el = document.getElementById('liste-admin-citoyens');
   if (!el) return;
@@ -782,7 +790,6 @@ async function majRoleCitoyen(id, role) {
   } catch { afficherToast('Erreur', 'erreur'); }
 }
 
-// F50 DASHBOARD ACTIVITE
 async function chargerDashboard() {
   const el = document.getElementById('contenu-dashboard');
   if (!el) return;
