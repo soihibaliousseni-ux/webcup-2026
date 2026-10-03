@@ -821,3 +821,34 @@ async function chargerDashboard() {
     `;
   } catch { el.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
 }
+// F56 EXPORT DEMANDES
+async function exporterMesDemandes() {
+  try {
+    const res = await fetch(`${API}/nova/demandes/export`, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await res.json();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'mes-demandes-terranova.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    afficherToast('📥 Export téléchargé !');
+  } catch { afficherToast('Erreur export', 'erreur'); }
+}
+
+// F55 EXPORT DONNEES PERSONNELLES
+async function exporterMesDonnees() {
+  try {
+    const res = await fetch(`${API}/nova/profil/export`, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await res.json();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'mes-donnees-terranova.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    afficherToast('📥 Données exportées !');
+  } catch { afficherToast('Erreur export', 'erreur'); }
+}

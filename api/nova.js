@@ -215,4 +215,27 @@ router.post('/demandes/:id/soutenir', verifierToken, async (req, res) => {
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
 
+// F56 Export demandes PDF/JSON
+router.get('/demandes/export', verifierToken, async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT sujet, message, statut, created_at FROM demandes_citoyens WHERE user_id = ? ORDER BY created_at DESC', [req.user.id]);
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename="mes-demandes-terranova.json"');
+    res.json({ citoyen: req.user.email, export_date: new Date().toISOString(), demandes: rows });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
+// F55 Export données personnelles
+router.get('/profil/export', verifierToken, async (req, res) => {
+  try {
+    const [[user]] = await pool.query('SELECT id, nom, email, role, created_at FROM users WHERE id = ?', [req.user.id]);
+    const [demandes] = await pool.query('SELECT sujet, message, statut, created_at FROM demandes_citoyens WHERE user_id = ?', [req.user.id]);
+    const [signalements] = await pool.query('SELECT type_probleme, description, localisation, statut, created_at FROM signalements WHERE user_id = ?', [req.user.id]);
+    const [rdvs] = await pool.query('SELECT service, date_rdv, heure, motif, statut FROM rendez_vous WHERE user_id = ?', [req.user.id]);
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename="mes-donnees-terranova.json"');
+    res.json({ profil: user, demandes, signalements, rendez_vous: rdvs, export_date: new Date().toISOString() });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
 module.exports = router;

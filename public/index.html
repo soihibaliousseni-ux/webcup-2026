@@ -187,7 +187,10 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
       <div id="liste-annonces-citoyen"></div>
     </div>
     <div id="mes-demandes" class="section">
-      <div id="liste-mes-demandes"></div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
+  <button onclick="exporterMesDemandes()" class="btn-access">📥 Télécharger mes demandes</button>
+</div>
+<div id="liste-mes-demandes"></div>
     </div>
     <div id="nouvelle-demande" class="section">
       <div style="background:white;border-radius:12px;padding:2rem;box-shadow:var(--ombre);">
@@ -259,7 +262,12 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
         <div style="border:1px solid #f8d7da;border-radius:10px;padding:1.5rem;background:#fff5f5;">
           <h4 style="color:#721c24;">⚠️ Supprimer mon compte</h4>
           <p style="font-size:0.9rem;color:#721c24;margin:0.5rem 0;">Cette action est irréversible.</p>
-          <button onclick="supprimerMonCompte()" class="btn-plein" style="background:#c0392b;margin-top:1rem;">Supprimer mon compte</button>
+                   <button onclick="supprimerMonCompte()" class="btn-plein" style="background:#c0392b;margin-top:1rem;">Supprimer mon compte</button>
+        </div>
+        <div style="border:1px solid #cce5ff;border-radius:10px;padding:1.5rem;background:#f0f8ff;margin-top:1rem;">
+          <h4 style="color:#004085;">📥 Mes données personnelles</h4>
+          <p style="font-size:0.9rem;color:#004085;margin:0.5rem 0;">Téléchargez toutes vos données enregistrées sur Terra Nova.</p>
+          <button onclick="exporterMesDonnees()" class="btn-plein" style="background:#1c6b7a;margin-top:1rem;">Exporter mes données</button>
         </div>
       </div>
     </div>
