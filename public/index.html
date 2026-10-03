@@ -15,6 +15,7 @@ cat > public/index.html << 'EOF'
 .service-card{background:white;border-radius:12px;padding:1.5rem;text-align:center;box-shadow:var(--ombre);cursor:pointer;transition:transform 0.2s;}
 .service-card:hover{transform:translateY(-4px);}
 .service-card .icone{font-size:2rem;margin-bottom:0.5rem;}
+.service-card.featured{border:2px solid var(--corail);}
 .badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.8rem;font-weight:600;}
 .badge-attente{background:#fff3cd;color:#856404;}
 .badge-cours{background:#cce5ff;color:#004085;}
@@ -35,8 +36,13 @@ cat > public/index.html << 'EOF'
 .btn-access{background:#f0f0f0;border:1px solid #ddd;border-radius:6px;padding:0.3rem 0.7rem;cursor:pointer;font-weight:700;font-size:0.9rem;transition:background 0.2s;}
 .btn-access:hover{background:var(--corail);color:white;}
 .btn-access.actif{background:var(--lagon-500);color:white;}
+.stat-card{background:white;border-radius:12px;padding:1.2rem;text-align:center;box-shadow:var(--ombre);}
+.stat-card .stat-nombre{font-size:2rem;font-weight:700;color:var(--lagon-700);}
+.stat-card .stat-label{font-size:0.85rem;color:var(--gris-texte);}
+.fil-ariane{font-size:0.85rem;color:var(--gris-texte);margin-bottom:1rem;padding:0.5rem 0;}
+.fil-ariane span{color:var(--corail);}
 body.contraste-eleve{background:#000!important;color:#fff!important;}
-body.contraste-eleve .service-card,body.contraste-eleve .annonce-card,body.contraste-eleve .demande-api-card{background:#111!important;color:#fff!important;border:2px solid #fff;}
+body.contraste-eleve .service-card,body.contraste-eleve .annonce-card,body.contraste-eleve .demande-api-card,body.contraste-eleve .stat-card{background:#111!important;color:#fff!important;border:2px solid #fff;}
 body.contraste-eleve .topbar{background:#000!important;border-bottom:2px solid #fff;}
 body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.contraste-eleve h3{color:#fff!important;}
 @media(max-width:600px){.topbar-nav{display:none;}.service-grid{grid-template-columns:1fr 1fr;}.topbar-access{display:none;}}
@@ -93,6 +99,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
 
   <!-- ESPACE CITOYEN -->
   <section id="ecran-citoyen" class="dashboard hidden" aria-label="Espace citoyen">
+    <div class="fil-ariane">🏠 Terra Nova → <span>Mon espace citoyen</span></div>
     <div class="dashboard-header">
       <h2>👤 Mon espace citoyen — <span id="nom-citoyen"></span></h2>
     </div>
@@ -125,6 +132,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
 
   <!-- ESPACE AGENT/ADMIN -->
   <section id="ecran-agent" class="dashboard hidden" aria-label="Espace agent municipal">
+    <div class="fil-ariane">🏠 Terra Nova → <span>Espace agent</span></div>
     <div class="dashboard-header">
       <h2>⚙️ Espace agent — <span id="nom-agent"></span></h2>
     </div>
@@ -134,6 +142,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
       <button class="nav-tab" onclick="afficherOnglet('api-nova', this)" role="tab">🌌 API Nova Terra</button>
     </div>
     <div id="demandes-agent" class="section active" role="tabpanel">
+      <div id="stats-agent" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem;"></div>
       <div id="liste-demandes-agent" aria-live="polite"></div>
     </div>
     <div id="messages-agent" class="section" role="tabpanel">
@@ -151,7 +160,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
   </section>
 
   <!-- MODALE SERVICE DETAIL -->
-  <div id="modale-service" class="modale-service hidden" role="dialog" aria-modal="true" aria-labelledby="titre-service">
+  <div id="modale-service" class="modale-service hidden" role="dialog" aria-modal="true">
     <div class="modale-service-contenu">
       <button onclick="fermerModaleService()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer;" aria-label="Fermer">&times;</button>
       <div id="detail-service"></div>

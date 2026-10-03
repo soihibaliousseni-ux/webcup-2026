@@ -68,5 +68,16 @@ router.get('/messages', verifierToken, async (req, res) => {
     res.json(rows);
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
+// Statistiques agent D17
+router.get('/stats', verifierToken, async (req, res) => {
+  try {
+    if (req.user.role === 'citoyen') return res.status(403).json({ erreur: 'Accès refusé' });
+    const [[attente]] = await pool.query("SELECT COUNT(*) as total FROM demandes_citoyens WHERE statut = 'en_attente'");
+    const [[cours]] = await pool.query("SELECT COUNT(*) as total FROM demandes_citoyens WHERE statut = 'en_cours'");
+    const [[resolu]] = await pool.query("SELECT COUNT(*) as total FROM demandes_citoyens WHERE statut = 'resolu'");
+    const [[total]] = await pool.query("SELECT COUNT(*) as total FROM demandes_citoyens");
+    res.json({ en_attente: attente.total, en_cours: cours.total, resolu: resolu.total, total: total.total });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
 
 module.exports = router;

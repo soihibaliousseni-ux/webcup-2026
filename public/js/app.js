@@ -1,3 +1,4 @@
+cat > public/js/app.js << 'EOF'
 const API = '/api';
 let token = localStorage.getItem('token');
 let utilisateur = JSON.parse(localStorage.getItem('utilisateur') || 'null');
@@ -21,7 +22,7 @@ function afficherOnglet(id, btn) {
   document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
-  if (id === 'demandes-agent') chargerDemandesAgent();
+  if (id === 'demandes-agent') { chargerDemandesAgent(); chargerStatsAgent(); }
   if (id === 'messages-agent') chargerMessagesAgent();
   if (id === 'api-nova') chargerAPINova();
   if (id === 'mes-demandes') chargerMesDemandes();
@@ -71,6 +72,7 @@ function majAffichage() {
       roleDisplay.textContent = utilisateur.role === 'admin' ? '👑 Admin' : '⚙️ Agent';
       roleDisplay.className = 'role-badge ' + (utilisateur.role === 'admin' ? 'role-admin' : 'role-agent');
       chargerDemandesAgent();
+      chargerStatsAgent();
     } else {
       agent.classList.add('hidden');
       citoyen.classList.remove('hidden');
@@ -153,8 +155,9 @@ async function chargerServices(targetId) {
   try {
     const res = await fetch(`${API}/nova/services`);
     const services = await res.json();
-    el.innerHTML = services.map(s => `
-      <div class="service-card" onclick="ouvrirModaleService('${echapper(s.nom)}','${echapper(s.description)}','${echapper(s.icone)}')">
+    el.innerHTML = services.map((s, i) => `
+      <div class="service-card ${i < 2 ? 'featured' : ''}" onclick="ouvrirModaleService('${echapper(s.nom)}','${echapper(s.description)}','${echapper(s.icone)}')">
+        ${i < 2 ? '<span style="font-size:0.7rem;background:var(--corail);color:white;padding:0.2rem 0.5rem;border-radius:10px;display:inline-block;margin-bottom:0.5rem;">⭐ Populaire</span>' : ''}
         <div class="icone">${echapper(s.icone)}</div>
         <h3>${echapper(s.nom)}</h3>
         <p style="color:var(--gris-texte);font-size:0.9rem;">${echapper(s.description)}</p>
@@ -210,7 +213,7 @@ async function chargerMesDemandes() {
   try {
     const res = await fetch(`${API}/nova/demandes`, { headers: { Authorization: `Bearer ${token}` } });
     const demandes = await res.json();
-    if (demandes.length === 0) { el.innerHTML = '<p class="etat-vide">Aucune demande pour le moment. <a href="#" onclick="document.querySelector(\'[onclick*=nouvelle-demande]\').click()">Soumettre une demande</a></p>'; return; }
+    if (demandes.length === 0) { el.innerHTML = '<p class="etat-vide">Aucune demande pour le moment.</p>'; return; }
     el.innerHTML = demandes.map(d => `
       <div class="annonce-card">
         <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:0.5rem;">
@@ -232,7 +235,7 @@ document.getElementById('form-demande').addEventListener('submit', async (e) => 
   try {
     const res = await fetch(`${API}/nova/demandes`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(data) });
     const json = await res.json();
-    if (res.ok) { afficherToast('Demande soumise avec succès !'); e.target.reset(); }
+    if (res.ok) { afficherToast('✅ Demande soumise avec succès !'); e.target.reset(); chargerMesDemandes(); }
     else afficherToast(json.erreur || 'Erreur', 'erreur');
   } catch { afficherToast('Erreur serveur', 'erreur'); }
   finally { btn.textContent = 'Soumettre'; btn.disabled = false; }
@@ -258,7 +261,7 @@ async function chargerDemandesAgent() {
           </tr>
         </thead>
         <tbody>
-          ${demandes.map((d, i) => `
+          ${demandes.map(d => `
             <tr style="border-bottom:1px solid #f0f0f0;">
               <td style="padding:1rem;font-weight:600;color:var(--corail);">TN-${String(d.id).padStart(3,'0')}</td>
               <td style="padding:1rem;">${echapper(d.citoyen)}</td>
@@ -283,6 +286,7 @@ async function majStatutDemande(id, statut) {
   try {
     await fetch(`${API}/nova/demandes/${id}/statut`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ statut }) });
     afficherToast('Statut mis à jour !');
+    chargerStatsAgent();
   } catch { afficherToast('Erreur', 'erreur'); }
 }
 
@@ -337,7 +341,32 @@ async function chargerAPINova() {
   } catch { el.innerHTML = '<p class="etat-vide">Erreur connexion API Terra Nova</p>'; }
 }
 
-majAffichage();
+async function chargerStatsAgent() {
+  const el = document.getElementById('stats-agent');
+  if (!el) return;
+  try {
+    const res = await fetch(`${API}/nova/stats`, { headers: { Authorization: `Bearer ${token}` } });
+    const stats = await res.json();
+    el.innerHTML = `
+      <div class="stat-card">
+        <div class="stat-nombre" style="color:#856404;">${stats.en_attente}</div>
+        <div class="stat-label">⏳ En attente</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-nombre" style="color:#004085;">${stats.en_cours}</div>
+        <div class="stat-label">🔄 En cours</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-nombre" style="color:#155724;">${stats.resolu}</div>
+        <div class="stat-label">✅ Résolus</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-nombre" style="color:var(--lagon-700);">${stats.total}</div>
+        <div class="stat-label">📋 Total</div>
+      </div>
+    `;
+  } catch { }
+}
 
 // ACCESSIBILITÉ F21 F23 F24
 let tailleCourante = 100;
@@ -357,7 +386,9 @@ function toggleContraste() {
   localStorage.setItem('contraste-eleve', actif);
 }
 
-// Restaurer préférences accessibilité
 const tailleStockee = localStorage.getItem('taille-texte');
 if (tailleStockee) { tailleCourante = parseInt(tailleStockee); document.body.style.fontSize = tailleCourante + '%'; }
 if (localStorage.getItem('contraste-eleve') === 'true') { document.body.classList.add('contraste-eleve'); document.getElementById('btn-contraste').classList.add('actif'); }
+
+majAffichage();
+EOF
