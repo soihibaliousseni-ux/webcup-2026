@@ -1,4 +1,4 @@
-cat > public/js/app.js << 'EOF'
+
 const API = '/api';
 let token = localStorage.getItem('token');
 let utilisateur = JSON.parse(localStorage.getItem('utilisateur') || 'null');
@@ -391,4 +391,3 @@ if (tailleStockee) { tailleCourante = parseInt(tailleStockee); document.body.sty
 if (localStorage.getItem('contraste-eleve') === 'true') { document.body.classList.add('contraste-eleve'); document.getElementById('btn-contraste').classList.add('actif'); }
 
 majAffichage();
-EOF
