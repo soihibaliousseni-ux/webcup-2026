@@ -98,4 +98,29 @@ router.get('/signalements', verifierToken, async (req, res) => {
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
 
+// Alertes D18 F29 F31
+router.get('/alertes', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM alertes WHERE actif = 1 ORDER BY created_at DESC');
+    res.json(rows);
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
+router.post('/alertes', verifierToken, async (req, res) => {
+  try {
+    if (req.user.role === 'citoyen') return res.status(403).json({ erreur: 'Accès refusé' });
+    const { titre, message, type } = req.body;
+    await pool.query('INSERT INTO alertes (titre, message, type) VALUES (?, ?, ?)', [titre, message, type || 'info']);
+    res.json({ message: 'Alerte publiée !' });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
+router.delete('/alertes/:id', verifierToken, async (req, res) => {
+  try {
+    if (req.user.role === 'citoyen') return res.status(403).json({ erreur: 'Accès refusé' });
+    await pool.query('UPDATE alertes SET actif = 0 WHERE id = ?', [req.params.id]);
+    res.json({ message: 'Alerte désactivée' });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
 module.exports = router;

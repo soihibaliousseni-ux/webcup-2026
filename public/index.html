@@ -40,6 +40,11 @@
 .stat-card .stat-label{font-size:0.85rem;color:var(--gris-texte);}
 .fil-ariane{font-size:0.85rem;color:var(--gris-texte);margin-bottom:1rem;padding:0.5rem 0;}
 .fil-ariane span{color:var(--corail);}
+.alerte-banniere{padding:1rem 1.5rem;margin-bottom:0.5rem;border-radius:0;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+.alerte-info{background:#cce5ff;color:#004085;}
+.alerte-urgence{background:#f8d7da;color:#721c24;}
+.alerte-inondation{background:#b8d4f0;color:#0c3d6b;}
+.alerte-canicule{background:#ffeeba;color:#856404;}
 body.contraste-eleve{background:#000!important;color:#fff!important;}
 body.contraste-eleve .service-card,body.contraste-eleve .annonce-card,body.contraste-eleve .demande-api-card,body.contraste-eleve .stat-card{background:#111!important;color:#fff!important;border:2px solid #fff;}
 body.contraste-eleve .topbar{background:#000!important;border-bottom:2px solid #fff;}
@@ -71,6 +76,9 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
   </nav>
 </header>
 <main role="main">
+  <!-- BANNIERE ALERTES D18 F29 F31 -->
+  <div id="banniere-alertes" aria-live="assertive"></div>
+
   <!-- ACCUEIL PUBLIC -->
   <section id="ecran-accueil" class="dashboard" aria-label="Page d'accueil">
     <div style="text-align:center;padding:3rem 1rem 2rem;">
@@ -164,6 +172,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
       <button class="nav-tab active" onclick="afficherOnglet('demandes-agent', this)" role="tab">📋 Demandes citoyens</button>
       <button class="nav-tab" onclick="afficherOnglet('messages-agent', this)" role="tab">✉️ Messages contact</button>
       <button class="nav-tab" onclick="afficherOnglet('signalements-agent', this)" role="tab">🚨 Signalements</button>
+      <button class="nav-tab" onclick="afficherOnglet('alertes-agent', this)" role="tab">📢 Alertes</button>
       <button class="nav-tab" onclick="afficherOnglet('api-nova', this)" role="tab">🌌 API Nova Terra</button>
     </div>
     <div id="demandes-agent" class="section active" role="tabpanel">
@@ -175,6 +184,25 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
     </div>
     <div id="signalements-agent" class="section" role="tabpanel">
       <div id="liste-signalements-agent" aria-live="polite"></div>
+    </div>
+    <div id="alertes-agent" class="section" role="tabpanel">
+      <div style="background:white;border-radius:12px;padding:2rem;box-shadow:var(--ombre);margin-bottom:1rem;">
+        <h3>📢 Publier une alerte</h3>
+        <form id="form-alerte">
+          <label>Titre *<input type="text" name="titre" required></label>
+          <label>Message *<textarea name="message" rows="3" required></textarea></label>
+          <label>Type
+            <select name="type" style="width:100%;padding:0.5rem;border-radius:8px;border:1px solid #ddd;margin-top:0.3rem;">
+              <option value="info">ℹ️ Information</option>
+              <option value="urgence">🚨 Urgence</option>
+              <option value="inondation">🌊 Inondation</option>
+              <option value="canicule">🌡️ Canicule</option>
+            </select>
+          </label>
+          <button type="submit" class="btn-plein">Publier l'alerte</button>
+        </form>
+      </div>
+      <div id="liste-alertes-agent" aria-live="polite"></div>
     </div>
     <div id="api-nova" class="section" role="tabpanel">
       <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);margin-bottom:1rem;">

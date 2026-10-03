@@ -25,6 +25,7 @@ function afficherOnglet(id, btn) {
   if (id === 'demandes-agent') { chargerDemandesAgent(); chargerStatsAgent(); }
     if (id === 'messages-agent') chargerMessagesAgent();
   if (id === 'signalements-agent') chargerSignalementsAgent();
+if (id === 'alertes-agent') { chargerAlertesAgent(); }
   if (id === 'api-nova') chargerAPINova();
   if (id === 'mes-demandes') chargerMesDemandes();
   if (id === 'services-citoyen') chargerServices('liste-services-citoyen');
@@ -472,3 +473,69 @@ async function chargerLangues() {
 }
 
 chargerLangues();
+
+// ALERTES D18 F29 F31
+async function chargerAlertes() {
+  const el = document.getElementById('banniere-alertes');
+  if (!el) return;
+  try {
+    const res = await fetch(`${API}/nova/alertes`);
+    const alertes = await res.json();
+    if (alertes.length === 0) { el.innerHTML = ''; return; }
+    el.innerHTML = alertes.map(a => `
+      <div class="alerte-banniere alerte-${a.type}" role="alert">
+        <div><strong>${echapper(a.titre)}</strong> — ${echapper(a.message)}</div>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;font-size:1.2rem;margin-left:1rem;">×</button>
+      </div>
+    `).join('');
+  } catch {}
+}
+
+async function chargerAlertesAgent() {
+  const el = document.getElementById('liste-alertes-agent');
+  if (!el) return;
+  el.innerHTML = '<p class="etat-vide">⏳ Chargement...</p>';
+  try {
+    const res = await fetch(`${API}/nova/alertes`);
+    const alertes = await res.json();
+    if (alertes.length === 0) { el.innerHTML = '<p class="etat-vide">Aucune alerte active</p>'; return; }
+    el.innerHTML = alertes.map(a => `
+      <div class="annonce-card" style="border-left:4px solid #c0392b;">
+        <div style="display:flex;justify-content:space-between;align-items:start;">
+          <div>
+            <h3>${echapper(a.titre)}</h3>
+            <span class="badge badge-attente">${echapper(a.type)}</span>
+          </div>
+          <button onclick="supprimerAlerte(${a.id}, this)" style="background:#f8d7da;border:none;padding:0.4rem 0.8rem;border-radius:8px;cursor:pointer;color:#721c24;">Désactiver</button>
+        </div>
+        <p style="margin-top:0.5rem;">${echapper(a.message)}</p>
+        <small style="color:var(--gris-texte);">${new Date(a.created_at).toLocaleDateString('fr-FR')}</small>
+      </div>
+    `).join('');
+  } catch { el.innerHTML = '<p class="etat-vide">Erreur</p>'; }
+}
+
+async function supprimerAlerte(id, btn) {
+  btn.textContent = '...'; btn.disabled = true;
+  try {
+    await fetch(`${API}/nova/alertes/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    afficherToast('Alerte désactivée');
+    chargerAlertesAgent();
+    chargerAlertes();
+  } catch { afficherToast('Erreur', 'erreur'); }
+}
+
+document.getElementById('form-alerte') && document.getElementById('form-alerte').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.textContent = '...'; btn.disabled = true;
+  try {
+    const res = await fetch(`${API}/nova/alertes`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(data) });
+    if (res.ok) { afficherToast('📢 Alerte publiée !'); e.target.reset(); chargerAlertesAgent(); chargerAlertes(); }
+    else afficherToast('Erreur', 'erreur');
+  } catch { afficherToast('Erreur serveur', 'erreur'); }
+  finally { btn.textContent = 'Publier l\'alerte'; btn.disabled = false; }
+});
+
+chargerAlertes();
