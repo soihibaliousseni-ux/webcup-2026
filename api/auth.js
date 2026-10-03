@@ -92,5 +92,33 @@ router.delete('/compte', verifierToken, async (req, res) => {
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
 
+// D02 Magic link / OTP
+const otpStore = {};
+
+router.post('/otp/demander', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ erreur: 'Email requis' });
+    const [rows] = await pool.query('SELECT id, nom, email, role FROM users WHERE email = ?', [email]);
+    if (rows.length === 0) return res.status(404).json({ erreur: 'Aucun compte avec cet email' });
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    otpStore[email] = { code, expires: Date.now() + 5 * 60 * 1000, user: rows[0] };
+    res.json({ message: `Code envoyé ! (démo: ${code})`, code });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
+router.post('/otp/verifier', async (req, res) => {
+  try {
+    const { email, code } = req.body;
+    const otp = otpStore[email];
+    if (!otp) return res.status(400).json({ erreur: 'Aucun code demandé pour cet email' });
+    if (Date.now() > otp.expires) { delete otpStore[email]; return res.status(400).json({ erreur: 'Code expiré' }); }
+    if (otp.code !== code) return res.status(400).json({ erreur: 'Code incorrect' });
+    delete otpStore[email];
+    const token = jwt.sign({ id: otp.user.id, email: otp.user.email, role: otp.user.role }, JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token, user: otp.user });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
 module.exports = router;
 module.exports.verifierToken = verifierToken;

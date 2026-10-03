@@ -188,9 +188,9 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
     </div>
     <div id="mes-demandes" class="section">
       <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
-  <button onclick="exporterMesDemandes()" class="btn-access">📥 Télécharger mes demandes</button>
-</div>
-<div id="liste-mes-demandes"></div>
+        <button onclick="exporterMesDemandes()" class="btn-access">📥 Télécharger mes demandes</button>
+      </div>
+      <div id="liste-mes-demandes"></div>
     </div>
     <div id="nouvelle-demande" class="section">
       <div style="background:white;border-radius:12px;padding:2rem;box-shadow:var(--ombre);">
@@ -262,7 +262,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
         <div style="border:1px solid #f8d7da;border-radius:10px;padding:1.5rem;background:#fff5f5;">
           <h4 style="color:#721c24;">⚠️ Supprimer mon compte</h4>
           <p style="font-size:0.9rem;color:#721c24;margin:0.5rem 0;">Cette action est irréversible.</p>
-                   <button onclick="supprimerMonCompte()" class="btn-plein" style="background:#c0392b;margin-top:1rem;">Supprimer mon compte</button>
+          <button onclick="supprimerMonCompte()" class="btn-plein" style="background:#c0392b;margin-top:1rem;">Supprimer mon compte</button>
         </div>
         <div style="border:1px solid #cce5ff;border-radius:10px;padding:1.5rem;background:#f0f8ff;margin-top:1rem;">
           <h4 style="color:#004085;">📥 Mes données personnelles</h4>
@@ -281,16 +281,16 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
     </div>
     <div class="nav-tabs" role="tablist">
       <button class="nav-tab active" onclick="afficherOnglet('dashboard-agent', this)">📊 Dashboard</button>
-<button class="nav-tab" onclick="afficherOnglet('demandes-agent', this)">📋 Demandes citoyens</button>
+      <button class="nav-tab" onclick="afficherOnglet('demandes-agent', this)">📋 Demandes citoyens</button>
       <button class="nav-tab" onclick="afficherOnglet('messages-agent', this)">✉️ Messages contact</button>
       <button class="nav-tab" onclick="afficherOnglet('signalements-agent', this)">🚨 Signalements</button>
       <button class="nav-tab" onclick="afficherOnglet('alertes-agent', this)">📢 Alertes</button>
       <button class="nav-tab" onclick="afficherOnglet('rdv-agent', this)">📅 Rendez-vous</button>
       <button class="nav-tab" onclick="afficherOnglet('api-nova', this)">🌌 API Nova Terra</button>
       <button class="nav-tab" onclick="afficherOnglet('audit-agent', this)">📋 Journal</button>
-<button class="nav-tab" onclick="afficherOnglet('admin-citoyens', this)">👑 Admin</button>
+      <button class="nav-tab" onclick="afficherOnglet('admin-citoyens', this)">👑 Admin</button>
     </div>
-        <div id="dashboard-agent" class="section active">
+    <div id="dashboard-agent" class="section active">
       <div id="contenu-dashboard"></div>
     </div>
     <div id="demandes-agent" class="section">
@@ -325,7 +325,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
     <div id="rdv-agent" class="section">
       <div id="liste-rdv-agent"></div>
     </div>
-       <div id="audit-agent" class="section">
+    <div id="audit-agent" class="section">
       <div id="liste-audit"></div>
     </div>
     <div id="admin-citoyens" class="section">
@@ -391,6 +391,16 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
           <button type="submit" class="btn-plein">Se connecter</button>
         </form>
         <p style="margin-top:1rem;font-size:0.9rem;text-align:center;">Pas encore de compte ? <a href="#" onclick="ouvrirModaleAuth('register')">S'inscrire</a></p>
+        <hr style="margin:1rem 0;border:none;border-top:1px solid #eee;">
+        <p style="font-size:0.9rem;text-align:center;margin-bottom:0.5rem;">🔐 Connexion sans mot de passe</p>
+        <div id="zone-otp" style="display:flex;flex-direction:column;gap:0.5rem;">
+          <input type="email" id="otp-email" placeholder="Votre email" style="padding:0.7rem;border:1px solid #ddd;border-radius:8px;font-family:Inter,sans-serif;">
+          <button onclick="demanderOTP()" class="btn-ghost">Recevoir un code</button>
+          <div id="zone-code-otp" style="display:none;flex-direction:column;gap:0.5rem;">
+            <input type="text" id="otp-code" placeholder="Code à 6 chiffres" maxlength="6" style="padding:0.7rem;border:1px solid #ddd;border-radius:8px;font-family:Inter,sans-serif;text-align:center;font-size:1.2rem;letter-spacing:0.3rem;">
+            <button onclick="verifierOTP()" class="btn-plein">Se connecter</button>
+          </div>
+        </div>
       </div>
       <div id="formulaire-inscription" class="hidden">
         <h2>Créer un compte citoyen</h2>

@@ -855,3 +855,34 @@ async function exporterMesDonnees() {
     afficherToast('📥 Données exportées !');
   } catch { afficherToast('Erreur export', 'erreur'); }
 }
+// D02 F53 CONNEXION OTP SANS MOT DE PASSE
+async function demanderOTP() {
+  const email = document.getElementById('otp-email').value;
+  if (!email) { afficherToast('Entrez votre email', 'erreur'); return; }
+  try {
+    const res = await fetch(`${API}/auth/otp/demander`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+    const json = await res.json();
+    if (res.ok) {
+      afficherToast(`🔐 Code envoyé ! (démo: ${json.code})`);
+      document.getElementById('zone-code-otp').style.display = 'flex';
+    } else afficherToast(json.erreur || 'Erreur', 'erreur');
+  } catch { afficherToast('Erreur serveur', 'erreur'); }
+}
+
+async function verifierOTP() {
+  const email = document.getElementById('otp-email').value;
+  const code = document.getElementById('otp-code').value;
+  if (!email || !code) { afficherToast('Email et code requis', 'erreur'); return; }
+  try {
+    const res = await fetch(`${API}/auth/otp/verifier`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, code }) });
+    const json = await res.json();
+    if (res.ok) {
+      token = json.token; utilisateur = json.user;
+      localStorage.setItem('token', token);
+      localStorage.setItem('utilisateur', JSON.stringify(utilisateur));
+      document.getElementById('modale-auth').classList.add('hidden');
+      afficherToast('✅ Connexion sans mot de passe réussie !');
+      majAffichage();
+    } else afficherToast(json.erreur || 'Code incorrect', 'erreur');
+  } catch { afficherToast('Erreur serveur', 'erreur'); }
+}
