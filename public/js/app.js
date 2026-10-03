@@ -31,7 +31,8 @@ function afficherOnglet(id, btn) {
   if (id === 'services-citoyen') chargerServices('liste-services-citoyen');
   if (id === 'transports') chargerTransports();
   if (id === 'rendez-vous') { chargerMesRdv(); }
-  if (id === 'rdv-agent') chargerRdvAgent();
+    if (id === 'rdv-agent') chargerRdvAgent();
+  if (id === 'audit-agent') chargerAudit();
   if (id === 'annonces-citoyen') chargerAnnonces('liste-annonces-citoyen');
 }
 
@@ -696,4 +697,34 @@ if (localStorage.getItem('daltonien') === 'true') {
 function fermerOnboarding() {
   document.getElementById('modale-onboarding').classList.add('hidden');
   localStorage.setItem('onboarding-done', 'true');
+}
+// AUDIT LOG F47 F48
+async function chargerAudit() {
+  const el = document.getElementById('liste-audit');
+  if (!el) return;
+  el.innerHTML = '<p class="etat-vide">⏳ Chargement...</p>';
+  try {
+    const res = await fetch(`${API}/nova/audit`, { headers: { Authorization: `Bearer ${token}` } });
+    const logs = await res.json();
+    if (logs.length === 0) { el.innerHTML = '<p class="etat-vide">Aucune action enregistrée</p>'; return; }
+    el.innerHTML = `
+      <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);margin-bottom:1rem;">
+        <h3>📋 Journal d'audit — ${logs.length} actions</h3>
+      </div>
+      ${logs.map(l => `
+        <div class="audit-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+            <div>
+              <strong>${echapper(l.action)}</strong>
+              ${l.details ? `<p style="font-size:0.85rem;color:var(--gris-texte);margin:0.2rem 0;">${echapper(l.details)}</p>` : ''}
+            </div>
+            <div style="text-align:right;font-size:0.8rem;color:var(--gris-texte);">
+              <div>👤 ${echapper(l.agent_nom || 'Système')}</div>
+              <div>${new Date(l.created_at).toLocaleString('fr-FR')}</div>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    `;
+  } catch { el.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
 }

@@ -153,4 +153,20 @@ router.get('/rendez-vous', verifierToken, async (req, res) => {
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
 
+// Audit log F47 F48
+router.get('/audit', verifierToken, async (req, res) => {
+  try {
+    if (req.user.role === 'citoyen') return res.status(403).json({ erreur: 'Accès refusé' });
+    const [rows] = await pool.query('SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 50');
+    res.json(rows);
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
+async function logAudit(pool, agent_id, agent_nom, action, details) {
+  try {
+    await pool.query('INSERT INTO audit_log (agent_id, agent_nom, action, details) VALUES (?, ?, ?, ?)', [agent_id, agent_nom, action, details || '']);
+  } catch {}
+}
+module.exports.logAudit = logAudit;
+
 module.exports = router;
