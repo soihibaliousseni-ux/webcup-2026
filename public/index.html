@@ -204,7 +204,16 @@ body.mode-eco *{transition:none!important;animation:none!important;}
       <div id="liste-annonces-citoyen"></div>
     </div>
     <div id="mes-demandes" class="section">
-      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <select id="filtre-statut" onchange="filtrerMesDemandes()" style="padding:0.4rem;border-radius:8px;border:1px solid #ddd;font-size:0.85rem;">
+            <option value="">Tous les statuts</option>
+            <option value="en_attente">⏳ En attente</option>
+            <option value="en_cours">🔄 En cours</option>
+            <option value="resolu">✅ Résolu</option>
+          </select>
+          <input type="text" id="filtre-sujet" placeholder="🔍 Rechercher..." onkeyup="filtrerMesDemandes()" style="padding:0.4rem;border-radius:8px;border:1px solid #ddd;font-size:0.85rem;">
+        </div>
         <button onclick="exporterMesDemandes()" class="btn-access">📥 Télécharger mes demandes</button>
       </div>
       <div id="liste-mes-demandes"></div>

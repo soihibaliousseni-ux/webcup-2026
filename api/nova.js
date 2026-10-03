@@ -291,4 +291,20 @@ router.post('/services/:id/commentaire', verifierToken, async (req, res) => {
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
 
+// F79 F80 Filtrer et prioriser demandes
+router.get('/demandes/filtrer', verifierToken, async (req, res) => {
+  try {
+    const { statut, sujet, priorite } = req.query;
+    let query = `SELECT d.*, u.nom as citoyen,
+      (SELECT COUNT(*) FROM soutiens WHERE demande_id = d.id) as nb_soutiens
+      FROM demandes_citoyens d LEFT JOIN users u ON d.user_id = u.id WHERE 1=1`;
+    const params = [];
+    if (statut) { query += ' AND d.statut = ?'; params.push(statut); }
+    if (sujet) { query += ' AND d.sujet LIKE ?'; params.push(`%${sujet}%`); }
+    query += ' ORDER BY nb_soutiens DESC, d.created_at DESC';
+    const [rows] = await pool.query(query, params);
+    res.json(rows);
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
 module.exports = router;

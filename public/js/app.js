@@ -1018,3 +1018,74 @@ async function inscriptionSansEmail() {
     } else afficherToast(json.erreur || 'Erreur', 'erreur');
   } catch { afficherToast('Erreur serveur', 'erreur'); }
 }
+// F79 F80 FILTRER ET PRIORISER DEMANDES
+async function filtrerMesDemandes() {
+  const statut = document.getElementById('filtre-statut').value;
+  const sujet = document.getElementById('filtre-sujet').value;
+  const el = document.getElementById('liste-mes-demandes');
+  el.innerHTML = '<p class="etat-vide">⏳ Chargement...</p>';
+  try {
+    let url = `${API}/nova/demandes`;
+    if (statut || sujet) url = `${API}/nova/demandes/filtrer?statut=${statut}&sujet=${encodeURIComponent(sujet)}`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    const demandes = await res.json();
+    if (demandes.length === 0) { el.innerHTML = '<p class="etat-vide">Aucune demande trouvée.</p>'; return; }
+    el.innerHTML = demandes.map(d => `
+      <div class="annonce-card">
+        <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:0.5rem;">
+          <h3>${echapper(d.sujet)}</h3>
+          <span class="badge badge-${d.statut === 'en_attente' ? 'attente' : d.statut === 'en_cours' ? 'cours' : 'resolu'}">${d.statut.replace('_',' ')}</span>
+        </div>
+        <p>${echapper(d.message)}</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
+          <small style="color:var(--gris-texte);">${new Date(d.created_at).toLocaleDateString('fr-FR')}</small>
+          <button onclick="soutenirDemande(${d.id}, this)" style="background:#e8f4f8;border:none;padding:0.4rem 0.8rem;border-radius:8px;cursor:pointer;color:var(--lagon-700);font-size:0.85rem;">👍 Soutenir (${d.nb_soutiens || 0})</button>
+        </div>
+      </div>
+    `).join('');
+  } catch { el.innerHTML = '<p class="etat-vide">Erreur</p>'; }
+}
+
+async function filtrerDemandesAgent() {
+  const statut = document.getElementById('filtre-statut-agent').value;
+  const sujet = document.getElementById('filtre-sujet-agent').value;
+  const priorite = document.getElementById('filtre-priorite-agent').value;
+  const el = document.getElementById('liste-demandes-agent');
+  el.innerHTML = '<p class="etat-vide">⏳ Chargement...</p>';
+  try {
+    let url = `${API}/nova/demandes/filtrer?statut=${statut}&sujet=${encodeURIComponent(sujet)}&priorite=${priorite}`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    const demandes = await res.json();
+    if (demandes.length === 0) { el.innerHTML = '<p class="etat-vide">Aucune demande trouvée</p>'; return; }
+    el.innerHTML = `
+      <table style="width:100%;border-collapse:collapse;background:white;border-radius:12px;overflow:hidden;box-shadow:var(--ombre);">
+        <thead style="background:var(--lagon-500);color:white;">
+          <tr>
+            <th style="padding:1rem;text-align:left;">Référence</th>
+            <th style="padding:1rem;text-align:left;">Citoyen</th>
+            <th style="padding:1rem;text-align:left;">Sujet</th>
+            <th style="padding:1rem;text-align:left;">Soutiens</th>
+            <th style="padding:1rem;text-align:left;">Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${demandes.map(d => `
+            <tr style="border-bottom:1px solid #f0f0f0;${d.nb_soutiens > 2 ? 'background:#fff8e1;' : ''}">
+              <td style="padding:1rem;font-weight:600;color:var(--corail);">TN-${String(d.id).padStart(3,'0')} ${d.nb_soutiens > 2 ? '🔴' : ''}</td>
+              <td style="padding:1rem;">${echapper(d.citoyen || '')}</td>
+              <td style="padding:1rem;">${echapper(d.sujet)}</td>
+              <td style="padding:1rem;text-align:center;">👍 ${d.nb_soutiens || 0}</td>
+              <td style="padding:1rem;">
+                <select onchange="majStatutDemande(${d.id}, this.value)" style="padding:0.4rem;border-radius:8px;border:1px solid #ddd;font-size:0.85rem;">
+                  <option value="en_attente" ${d.statut === 'en_attente' ? 'selected' : ''}>Nouveau</option>
+                  <option value="en_cours" ${d.statut === 'en_cours' ? 'selected' : ''}>En cours</option>
+                  <option value="resolu" ${d.statut === 'resolu' ? 'selected' : ''}>Traité</option>
+                </select>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch { el.innerHTML = '<p class="etat-vide">Erreur</p>'; }
+}

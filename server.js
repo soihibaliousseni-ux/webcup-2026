@@ -13,7 +13,25 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
+
+// F77 F78 Performance charge
+const cache = new Map();
+app.use((req, res, next) => {
+  if (req.method === 'GET' && req.path.includes('/nova/')) {
+    const key = req.path;
+    const cached = cache.get(key);
+    if (cached && Date.now() - cached.time < 5000) {
+      return res.json(cached.data);
+    }
+    const originalJson = res.json.bind(res);
+    res.json = (data) => {
+      cache.set(key, { data, time: Date.now() });
+      return originalJson(data);
+    };
+  }
+  next();
+});
 
 // F69 Sécurité headers
 app.use((req, res, next) => {
