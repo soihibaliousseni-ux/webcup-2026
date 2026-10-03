@@ -20,8 +20,9 @@ function echapper(t) {
 function afficherOnglet(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
+  if (aidesOnglets && aidesOnglets[id]) afficherAide(aidesOnglets[id]);
   if (id === 'demandes-agent') { chargerDemandesAgent(); chargerStatsAgent(); }
     if (id === 'messages-agent') chargerMessagesAgent();
   if (id === 'signalements-agent') chargerSignalementsAgent();
@@ -539,3 +540,38 @@ document.getElementById('form-alerte') && document.getElementById('form-alerte')
 });
 
 chargerAlertes();
+
+// F35 TOOLTIPS AIDE
+function afficherAide(message) {
+  const aide = document.createElement('div');
+  aide.textContent = message;
+  aide.style.cssText = `position:fixed;top:5rem;right:1rem;padding:1rem 1.5rem;background:#1c6b7a;color:white;border-radius:10px;font-family:Inter,sans-serif;font-size:0.9rem;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.2);max-width:300px;line-height:1.5;`;
+  aide.innerHTML = message + '<button onclick="this.parentElement.remove()" style="display:block;margin-top:0.5rem;background:rgba(255,255,255,0.2);border:none;color:white;padding:0.3rem 0.8rem;border-radius:6px;cursor:pointer;">OK</button>';
+  document.body.appendChild(aide);
+  setTimeout(() => aide.remove && aide.remove(), 8000);
+}
+
+// Afficher aide contextuelle selon l'onglet
+const aidesOnglets = {
+  'nouvelle-demande': '💡 Décrivez votre besoin clairement. Un agent traitera votre demande dans les meilleurs délais.',
+  'signalement': '💡 Signalez tout problème visible dans votre secteur. Indiquez la localisation précise pour aider nos équipes.',
+  'mes-demandes': '💡 Retrouvez ici toutes vos démarches. Le statut est mis à jour par nos agents en temps réel.',
+  'services-citoyen': '💡 Cliquez sur un service pour en savoir plus et accéder aux démarches associées.'
+};
+
+const afficherOngletOriginal = afficherOnglet;
+
+// F33 SUPPRESSION COMPTE
+async function supprimerMonCompte() {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.')) return;
+  try {
+    const res = await fetch(`${API}/auth/compte`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    if (res.ok) {
+      afficherToast('Compte supprimé avec succès');
+      token = null; utilisateur = null;
+      localStorage.removeItem('token');
+      localStorage.removeItem('utilisateur');
+      setTimeout(() => majAffichage(), 1500);
+    }
+  } catch { afficherToast('Erreur serveur', 'erreur'); }
+}

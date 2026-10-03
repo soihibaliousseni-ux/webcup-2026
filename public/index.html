@@ -118,7 +118,8 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
       <button class="nav-tab" onclick="afficherOnglet('annonces-citoyen', this)" role="tab" aria-selected="false">📢 Annonces</button>
       <button class="nav-tab" onclick="afficherOnglet('mes-demandes', this)" role="tab" aria-selected="false">📋 Mes demandes</button>
       <button class="nav-tab" onclick="afficherOnglet('nouvelle-demande', this)" role="tab" aria-selected="false">➕ Nouvelle demande</button>
-      <button class="nav-tab" onclick="afficherOnglet('signalement', this)" role="tab" aria-selected="false">🚨 Signaler</button>
+     <button class="nav-tab" onclick="afficherOnglet('signalement', this)" role="tab" aria-selected="false">🚨 Signaler</button>
+<button class="nav-tab" onclick="afficherOnglet('mon-compte', this)" role="tab" aria-selected="false">👤 Mon compte</button>
     </div>
     <div id="services-citoyen" class="section active" role="tabpanel">
       <div id="liste-services-citoyen" class="service-grid"></div>
@@ -162,6 +163,20 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
     </div>
   </section>
 
+    <div id="mon-compte" class="section" role="tabpanel">
+      <div style="background:white;border-radius:12px;padding:2rem;box-shadow:var(--ombre);">
+        <h3>👤 Mon compte</h3>
+        <p style="color:var(--gris-texte);margin-bottom:1.5rem;">Gérez votre compte citoyen Terra Nova.</p>
+        <div style="border:1px solid #f8d7da;border-radius:10px;padding:1.5rem;background:#fff5f5;">
+          <h4 style="color:#721c24;">⚠️ Supprimer mon compte</h4>
+          <p style="font-size:0.9rem;color:#721c24;margin:0.5rem 0;">Cette action est irréversible. Toutes vos demandes seront supprimées.</p>
+          <button onclick="supprimerMonCompte()" class="btn-plein" style="background:#c0392b;margin-top:1rem;">Supprimer mon compte</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESPACE AGENT/ADMIN -->
   <!-- ESPACE AGENT/ADMIN -->
   <section id="ecran-agent" class="dashboard hidden" aria-label="Espace agent municipal">
     <div class="fil-ariane">🏠 Terra Nova → <span>Espace agent</span></div>

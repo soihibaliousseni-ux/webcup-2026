@@ -63,6 +63,13 @@ function verifierToken(req, res, next) {
     res.status(403).json({ erreur: 'Token invalide ou expiré' });
   }
 }
+// Suppression compte F33
+router.delete('/compte', verifierToken, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM users WHERE id = ?', [req.user.id]);
+    res.json({ message: 'Compte supprimé avec succès' });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
 
 module.exports = router;
 module.exports.verifierToken = verifierToken;
