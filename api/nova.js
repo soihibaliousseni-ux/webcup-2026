@@ -80,4 +80,22 @@ router.get('/stats', verifierToken, async (req, res) => {
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
 
+// Signalements F25
+router.post('/signalements', verifierToken, async (req, res) => {
+  try {
+    const { type_probleme, description, localisation } = req.body;
+    if (!type_probleme || !description) return res.status(400).json({ erreur: 'Type et description requis' });
+    await pool.query('INSERT INTO signalements (user_id, type_probleme, description, localisation) VALUES (?, ?, ?, ?)', [req.user.id, type_probleme, description, localisation || '']);
+    res.json({ message: '✅ Signalement envoyé avec succès !' });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
+router.get('/signalements', verifierToken, async (req, res) => {
+  try {
+    if (req.user.role === 'citoyen') return res.status(403).json({ erreur: 'Accès refusé' });
+    const [rows] = await pool.query('SELECT s.*, u.nom as citoyen FROM signalements s LEFT JOIN users u ON s.user_id = u.id ORDER BY s.created_at DESC');
+    res.json(rows);
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
 module.exports = router;

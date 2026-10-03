@@ -23,7 +23,8 @@ function afficherOnglet(id, btn) {
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
   if (id === 'demandes-agent') { chargerDemandesAgent(); chargerStatsAgent(); }
-  if (id === 'messages-agent') chargerMessagesAgent();
+    if (id === 'messages-agent') chargerMessagesAgent();
+  if (id === 'signalements-agent') chargerSignalementsAgent();
   if (id === 'api-nova') chargerAPINova();
   if (id === 'mes-demandes') chargerMesDemandes();
   if (id === 'services-citoyen') chargerServices('liste-services-citoyen');
@@ -391,3 +392,80 @@ if (tailleStockee) { tailleCourante = parseInt(tailleStockee); document.body.sty
 if (localStorage.getItem('contraste-eleve') === 'true') { document.body.classList.add('contraste-eleve'); document.getElementById('btn-contraste').classList.add('actif'); }
 
 majAffichage();
+
+// SIGNALEMENT F25
+document.getElementById('form-signalement') && document.getElementById('form-signalement').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.textContent = '...'; btn.disabled = true;
+  try {
+    const res = await fetch(`${API}/nova/signalements`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(data) });
+    const json = await res.json();
+    if (res.ok) { afficherToast('🚨 Signalement envoyé !'); e.target.reset(); }
+    else afficherToast(json.erreur || 'Erreur', 'erreur');
+  } catch { afficherToast('Erreur serveur', 'erreur'); }
+  finally { btn.textContent = 'Envoyer le signalement'; btn.disabled = false; }
+});
+
+async function chargerSignalementsAgent() {
+  const el = document.getElementById('liste-signalements-agent');
+  if (!el) return;
+  el.innerHTML = '<p class="etat-vide">⏳ Chargement...</p>';
+  try {
+    const res = await fetch(`${API}/nova/signalements`, { headers: { Authorization: `Bearer ${token}` } });
+    const signalements = await res.json();
+    if (signalements.length === 0) { el.innerHTML = '<p class="etat-vide">Aucun signalement reçu</p>'; return; }
+    el.innerHTML = signalements.map(s => `
+      <div class="annonce-card" style="border-left:4px solid #c0392b;">
+        <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:0.5rem;">
+          <div>
+            <h3>🚨 ${echapper(s.type_probleme)}</h3>
+            <p style="font-size:0.85rem;color:var(--gris-texte);">Citoyen: ${echapper(s.citoyen)} — ${new Date(s.created_at).toLocaleDateString('fr-FR')}</p>
+          </div>
+          <span class="badge badge-${s.statut === 'nouveau' ? 'attente' : s.statut === 'en_cours' ? 'cours' : 'resolu'}">${s.statut}</span>
+        </div>
+        <p>${echapper(s.description)}</p>
+        ${s.localisation ? `<p style="font-size:0.85rem;color:var(--gris-texte);">📍 ${echapper(s.localisation)}</p>` : ''}
+      </div>
+    `).join('');
+  } catch { el.innerHTML = '<p class="etat-vide">Erreur</p>'; }
+}
+
+// LANGUE D14
+async function chargerLangues() {
+  try {
+    const res = await fetch(`${API}/traduction/langues`);
+    const langues = await res.json();
+    const select = document.getElementById('selecteur-langue');
+    if (!select) return;
+    Object.entries(langues).forEach(([code, nom]) => {
+      const option = document.createElement('option');
+      option.value = code;
+      option.textContent = nom;
+      select.appendChild(option);
+    });
+    select.addEventListener('change', async (e) => {
+      const langue = e.target.value;
+      if (!langue) return;
+      afficherToast('🌍 Traduction en cours...');
+      const elements = document.querySelectorAll('h1, h2, h3, .nav-tab, .btn-plein, .btn-ghost, label');
+      for (const el of elements) {
+        const texte = el.childNodes[0]?.textContent?.trim();
+        if (!texte || texte.length < 2 || texte.length > 100) continue;
+        try {
+          const res = await fetch(`${API}/traduction`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ texte, langue_cible: langue })
+          });
+          const json = await res.json();
+          if (json.traduction && el.childNodes[0]) el.childNodes[0].textContent = json.traduction;
+        } catch {}
+      }
+      afficherToast(`✅ Interface traduite !`);
+    });
+  } catch {}
+}
+
+chargerLangues();
