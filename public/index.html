@@ -61,6 +61,13 @@ body.contraste-eleve{background:#000!important;color:#fff!important;}
 body.contraste-eleve .service-card,body.contraste-eleve .annonce-card,body.contraste-eleve .demande-api-card,body.contraste-eleve .stat-card,body.contraste-eleve .transport-card,body.contraste-eleve .rdv-card,body.contraste-eleve .audit-card{background:#111!important;color:#fff!important;border:2px solid #fff;}
 body.contraste-eleve .topbar{background:#000!important;border-bottom:2px solid #fff;}
 body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.contraste-eleve h3{color:#fff!important;}
+/* F57 F58 F59 F60 Eco-conception */
+.badge-eco{background:#d4edda;color:#155724;padding:0.2rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:600;}
+body.mode-eco .service-card:hover{transform:none!important;}
+body.mode-eco .annonce-card,body.mode-eco .transport-card,body.mode-eco .rdv-card{box-shadow:none!important;border:1px solid #ddd!important;}
+body.mode-eco img{display:none!important;}
+body.mode-eco .service-card{box-shadow:none!important;border:1px solid #ddd!important;}
+body.mode-eco *{transition:none!important;animation:none!important;}
 @media(max-width:600px){.topbar-nav{display:none;}.service-grid{grid-template-columns:1fr 1fr;}.topbar-access{display:none;}}
 </style>
 </head>
@@ -80,6 +87,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
     <button onclick="changerTaille(1)" class="btn-access" aria-label="Agrandir la taille du texte" title="Agrandir le texte">A+</button>
     <button onclick="toggleContraste()" class="btn-access" id="btn-contraste" aria-label="Activer le contraste élevé" title="Contraste élevé">◐</button>
     <button onclick="toggleDaltonien()" class="btn-access" id="btn-dalton" aria-label="Mode daltonien" title="Mode daltonien">◑</button>
+    <button onclick="toggleEco()" class="btn-access" id="btn-eco" aria-label="Mode éco connexion lente" title="Mode éco">🌱</button>
   </div>
   <nav class="topbar-actions" role="navigation" aria-label="Compte utilisateur">
     <span id="role-display" class="role-badge role-citoyen hidden" aria-live="polite"></span>
@@ -90,6 +98,10 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
 </header>
 <main role="main">
   <div id="banniere-alertes" aria-live="assertive"></div>
+  <!-- BADGE ECO F57 F58 -->
+  <div id="banniere-eco" style="display:none;background:#d4edda;color:#155724;padding:0.5rem 1.5rem;font-size:0.85rem;font-weight:600;">
+    🌱 Mode éco activé — Plateforme allégée pour connexions lentes
+  </div>
 
   <!-- ACCUEIL PUBLIC -->
   <section id="ecran-accueil" class="dashboard">
@@ -100,6 +112,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
         <button onclick="ouvrirModaleAuth('register')" class="btn-plein btn-large">Créer mon compte</button>
         <button onclick="ouvrirModaleAuth('login')" class="btn-ghost btn-large">Me connecter</button>
       </div>
+      <p style="margin-top:1rem;font-size:0.8rem;color:var(--gris-texte);">🌱 <span class="badge-eco">Éco-conçu</span> — Page légère, moins de 50ko de données</p>
     </div>
     <div style="background:#f0f8ff;border-radius:12px;padding:1rem 1.5rem;margin-bottom:1rem;font-size:0.9rem;">
       📖 <strong>Glossaire :</strong>
@@ -416,7 +429,7 @@ body.contraste-eleve p,body.contraste-eleve h1,body.contraste-eleve h2,body.cont
     </div>
   </div>
 </main>
-<footer role="contentinfo"><p>Terra Nova — Plateforme Numérique Municipale © 2026</p></footer>
+<footer role="contentinfo"><p>Terra Nova — Plateforme Numérique Municipale © 2026 🌱</p></footer>
 <script src="/js/app.js"></script>
 </body>
 </html>

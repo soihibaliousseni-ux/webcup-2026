@@ -886,3 +886,22 @@ async function verifierOTP() {
     } else afficherToast(json.erreur || 'Code incorrect', 'erreur');
   } catch { afficherToast('Erreur serveur', 'erreur'); }
 }
+
+// F57 F58 F59 F60 MODE ECO
+function toggleEco() {
+  document.body.classList.toggle('mode-eco');
+  const btn = document.getElementById('btn-eco');
+  const actif = document.body.classList.contains('mode-eco');
+  btn.classList.toggle('actif', actif);
+  localStorage.setItem('mode-eco', actif);
+  const banniere = document.getElementById('banniere-eco');
+  if (banniere) banniere.style.display = actif ? 'block' : 'none';
+  afficherToast(actif ? '🌱 Mode éco activé — Connexion allégée' : '🌱 Mode éco désactivé');
+}
+
+if (localStorage.getItem('mode-eco') === 'true') {
+  document.body.classList.add('mode-eco');
+  document.getElementById('btn-eco') && document.getElementById('btn-eco').classList.add('actif');
+  const banniere = document.getElementById('banniere-eco');
+  if (banniere) banniere.style.display = 'block';
+}
