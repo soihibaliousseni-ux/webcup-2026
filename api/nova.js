@@ -248,4 +248,37 @@ router.put('/services/:id/statut', verifierToken, async (req, res) => {
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
 
+// F65 F66 F67 F68 Projets et votes
+router.get('/projets', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT p.*, (SELECT COUNT(*) FROM votes_projets WHERE projet_id = p.id AND avis = "pour") as votes_pour, (SELECT COUNT(*) FROM votes_projets WHERE projet_id = p.id AND avis = "contre") as votes_contre, (SELECT COUNT(*) FROM votes_projets WHERE projet_id = p.id AND avis = "neutre") as votes_neutre FROM projets p ORDER BY created_at DESC');
+    res.json(rows);
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
+router.post('/projets', verifierToken, async (req, res) => {
+  try {
+    if (req.user.role === 'citoyen') return res.status(403).json({ erreur: 'Accès refusé' });
+    const { titre, description, statut } = req.body;
+    await pool.query('INSERT INTO projets (titre, description, statut) VALUES (?, ?, ?)', [titre, description, statut || 'en_cours']);
+    res.json({ message: 'Projet créé !' });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
+router.post('/projets/:id/voter', verifierToken, async (req, res) => {
+  try {
+    const { avis, commentaire } = req.body;
+    await pool.query('INSERT INTO votes_projets (projet_id, user_id, avis, commentaire) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE avis = ?, commentaire = ?', [req.params.id, req.user.id, avis, commentaire || '', avis, commentaire || '']);
+    res.json({ message: '✅ Vote enregistré !' });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
+router.post('/idees', verifierToken, async (req, res) => {
+  try {
+    const { titre, description } = req.body;
+    await pool.query('INSERT INTO projets (titre, description, statut) VALUES (?, ?, "en_cours")', [titre, description]);
+    res.json({ message: '💡 Idée soumise à la ville !' });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
 module.exports = router;

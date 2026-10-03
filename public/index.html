@@ -154,7 +154,8 @@ body.mode-eco *{transition:none!important;animation:none!important;}
       <button class="nav-tab" onclick="afficherOnglet('nouvelle-demande', this)">➕ Nouvelle demande</button>
       <button class="nav-tab" onclick="afficherOnglet('rendez-vous', this)">📅 Rendez-vous</button>
       <button class="nav-tab" onclick="afficherOnglet('signalement', this)">🚨 Signaler</button>
-      <button class="nav-tab" onclick="afficherOnglet('mon-compte', this)">👤 Mon compte</button>
+     <button class="nav-tab" onclick="afficherOnglet('mon-compte', this)">👤 Mon compte</button>
+<button class="nav-tab" onclick="afficherOnglet('projets', this)">🏗️ Projets</button>
     </div>
     <div id="services-citoyen" class="section active">
       <div id="liste-services-citoyen" class="service-grid"></div>
@@ -265,6 +266,17 @@ body.mode-eco *{transition:none!important;animation:none!important;}
           <label>Description *<textarea name="description" rows="3" required></textarea></label>
           <label>Localisation<input type="text" name="localisation" placeholder="Ex: Rue des Étoiles, secteur 3"></label>
           <button type="submit" class="btn-plein">Envoyer le signalement</button>
+        </form>
+      </div>
+     </div>
+    <div id="projets" class="section">
+      <div id="liste-projets"></div>
+      <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);margin-top:1rem;">
+        <h3>💡 Proposer une idée</h3>
+        <form id="form-idee">
+          <label>Titre *<input type="text" name="titre" required></label>
+          <label>Description *<textarea name="description" rows="3" required></textarea></label>
+          <button type="submit" class="btn-plein">Soumettre mon idée</button>
         </form>
       </div>
     </div>

@@ -35,7 +35,8 @@ function afficherOnglet(id, btn) {
   if (id === 'rdv-agent') chargerRdvAgent();
   if (id === 'audit-agent') chargerAudit();
     if (id === 'admin-citoyens') chargerAdminCitoyens();
-  if (id === 'services-agent') chargerServicesAgent();
+    if (id === 'services-agent') chargerServicesAgent();
+  if (id === 'projets') chargerProjets();
   if (id === 'annonces-citoyen') chargerAnnonces('liste-annonces-citoyen');
 }
 
@@ -949,3 +950,62 @@ async function majStatutService(id, statut) {
     chargerServices('liste-services-citoyen');
   } catch { afficherToast('Erreur', 'erreur'); }
 }
+
+// F65 F66 F67 F68 PROJETS ET VOTES
+async function chargerProjets() {
+  const el = document.getElementById('liste-projets');
+  if (!el) return;
+  el.innerHTML = '<p class="etat-vide">⏳ Chargement...</p>';
+  try {
+    const res = await fetch(`${API}/nova/projets`);
+    const projets = await res.json();
+    if (projets.length === 0) { el.innerHTML = '<p class="etat-vide">Aucun projet</p>'; return; }
+    el.innerHTML = projets.map(p => `
+      <div class="annonce-card" style="border-left:4px solid ${p.statut === 'consultation' ? 'var(--corail)' : p.statut === 'en_cours' ? 'var(--lagon-500)' : '#27ae60'};">
+        <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:0.5rem;">
+          <div>
+            <h3>${echapper(p.titre)}</h3>
+            <span class="badge badge-${p.statut === 'consultation' ? 'attente' : p.statut === 'en_cours' ? 'cours' : 'resolu'}">${p.statut === 'consultation' ? '🗳️ Consultation' : p.statut === 'en_cours' ? '🔄 En cours' : '✅ Terminé'}</span>
+          </div>
+        </div>
+        <p style="margin:0.8rem 0;">${echapper(p.description)}</p>
+        <div style="background:#f8f9fa;border-radius:8px;padding:0.8rem;margin-bottom:0.8rem;">
+          <div style="display:flex;gap:1rem;font-size:0.85rem;">
+            <span style="color:#27ae60;">👍 ${p.votes_pour} pour</span>
+            <span style="color:#c0392b;">👎 ${p.votes_contre} contre</span>
+            <span style="color:var(--gris-texte);">😐 ${p.votes_neutre} neutre</span>
+          </div>
+        </div>
+        ${p.statut === 'consultation' && token ? `
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button onclick="voterProjet(${p.id}, 'pour')" style="background:#d4edda;border:none;padding:0.4rem 0.8rem;border-radius:8px;cursor:pointer;color:#155724;">👍 Pour</button>
+          <button onclick="voterProjet(${p.id}, 'contre')" style="background:#f8d7da;border:none;padding:0.4rem 0.8rem;border-radius:8px;cursor:pointer;color:#721c24;">👎 Contre</button>
+          <button onclick="voterProjet(${p.id}, 'neutre')" style="background:#f0f0f0;border:none;padding:0.4rem 0.8rem;border-radius:8px;cursor:pointer;">😐 Neutre</button>
+        </div>` : ''}
+      </div>
+    `).join('');
+  } catch { el.innerHTML = '<p class="etat-vide">Erreur</p>'; }
+}
+
+async function voterProjet(id, avis) {
+  try {
+    const res = await fetch(`${API}/nova/projets/${id}/voter`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ avis }) });
+    const json = await res.json();
+    if (res.ok) { afficherToast('🗳️ ' + json.message); chargerProjets(); }
+    else afficherToast(json.erreur || 'Erreur', 'erreur');
+  } catch { afficherToast('Erreur serveur', 'erreur'); }
+}
+
+document.getElementById('form-idee') && document.getElementById('form-idee').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.textContent = '...'; btn.disabled = true;
+  try {
+    const res = await fetch(`${API}/nova/idees`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(data) });
+    const json = await res.json();
+    if (res.ok) { afficherToast('💡 ' + json.message); e.target.reset(); chargerProjets(); }
+    else afficherToast(json.erreur || 'Erreur', 'erreur');
+  } catch { afficherToast('Erreur serveur', 'erreur'); }
+  finally { btn.textContent = 'Soumettre mon idée'; btn.disabled = false; }
+});
