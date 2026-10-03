@@ -29,6 +29,25 @@ function afficherOnglet(id, btn) {
   if (id === 'annonces-citoyen') chargerAnnonces('liste-annonces-citoyen');
 }
 
+function ouvrirModaleService(nom, description, icone) {
+  document.getElementById('detail-service').innerHTML = `
+    <div style="text-align:center;margin-bottom:1.5rem;">
+      <div style="font-size:3rem;">${echapper(icone)}</div>
+      <h2>${echapper(nom)}</h2>
+    </div>
+    <p>${echapper(description)}</p>
+    <div style="margin-top:1.5rem;padding:1rem;background:#f8f9fa;border-radius:10px;">
+      <p style="font-size:0.9rem;color:#666;">Pour accéder à ce service, connectez-vous à votre espace citoyen ou soumettez une demande.</p>
+    </div>
+    <button onclick="fermerModaleService();ouvrirModaleAuth('login');" class="btn-plein" style="width:100%;margin-top:1rem;">Accéder à mon espace</button>
+  `;
+  document.getElementById('modale-service').classList.remove('hidden');
+}
+
+function fermerModaleService() {
+  document.getElementById('modale-service').classList.add('hidden');
+}
+
 function majAffichage() {
   const accueil = document.getElementById('ecran-accueil');
   const citoyen = document.getElementById('ecran-citoyen');
@@ -99,14 +118,14 @@ document.getElementById('form-login').addEventListener('submit', async (e) => {
   try {
     const res = await fetch(`${API}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
     const json = await res.json();
-    if (!res.ok) { erreurEl.textContent = json.erreur; return; }
+    if (!res.ok) { erreurEl.textContent = json.erreur || 'Erreur de connexion'; return; }
     token = json.token; utilisateur = json.user;
     localStorage.setItem('token', token);
     localStorage.setItem('utilisateur', JSON.stringify(utilisateur));
     document.getElementById('modale-auth').classList.add('hidden');
     afficherToast('Bienvenue sur Terra Nova, ' + utilisateur.nom + ' !');
     majAffichage();
-  } catch { erreurEl.textContent = 'Erreur serveur'; }
+  } catch { erreurEl.textContent = 'Erreur serveur, réessayez'; }
 });
 
 document.getElementById('form-register').addEventListener('submit', async (e) => {
@@ -117,14 +136,14 @@ document.getElementById('form-register').addEventListener('submit', async (e) =>
   try {
     const res = await fetch(`${API}/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
     const json = await res.json();
-    if (!res.ok) { erreurEl.textContent = json.erreur; return; }
+    if (!res.ok) { erreurEl.textContent = json.erreur || 'Erreur inscription'; return; }
     token = json.token; utilisateur = json.user;
     localStorage.setItem('token', token);
     localStorage.setItem('utilisateur', JSON.stringify(utilisateur));
     document.getElementById('modale-auth').classList.add('hidden');
     afficherToast('Bienvenue sur Terra Nova !');
     majAffichage();
-  } catch { erreurEl.textContent = 'Erreur serveur'; }
+  } catch { erreurEl.textContent = 'Erreur serveur, réessayez'; }
 });
 
 async function chargerServices(targetId) {
@@ -135,10 +154,11 @@ async function chargerServices(targetId) {
     const res = await fetch(`${API}/nova/services`);
     const services = await res.json();
     el.innerHTML = services.map(s => `
-      <div class="service-card">
+      <div class="service-card" onclick="ouvrirModaleService('${echapper(s.nom)}','${echapper(s.description)}','${echapper(s.icone)}')">
         <div class="icone">${echapper(s.icone)}</div>
         <h3>${echapper(s.nom)}</h3>
         <p style="color:var(--gris-texte);font-size:0.9rem;">${echapper(s.description)}</p>
+        <span style="font-size:0.8rem;color:var(--corail);margin-top:0.5rem;display:block;">En savoir plus →</span>
       </div>
     `).join('');
   } catch { el.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
@@ -165,12 +185,22 @@ async function chargerAnnonces(targetId) {
 document.getElementById('form-contact').addEventListener('submit', async (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(e.target));
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.textContent = '...'; btn.disabled = true;
   try {
     const res = await fetch(`${API}/nova/contact`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
     const json = await res.json();
-    if (res.ok) { afficherToast('Message envoyé !'); e.target.reset(); }
-    else afficherToast(json.erreur, 'erreur');
+    if (res.ok) {
+      e.target.reset();
+      const conf = document.getElementById('confirmation-contact');
+      conf.style.display = 'block';
+      setTimeout(() => conf.style.display = 'none', 5000);
+      afficherToast('Message envoyé à l\'administration !');
+    } else {
+      afficherToast(json.erreur || 'Erreur envoi', 'erreur');
+    }
   } catch { afficherToast('Erreur serveur', 'erreur'); }
+  finally { btn.textContent = 'Envoyer'; btn.disabled = false; }
 });
 
 async function chargerMesDemandes() {
@@ -180,10 +210,10 @@ async function chargerMesDemandes() {
   try {
     const res = await fetch(`${API}/nova/demandes`, { headers: { Authorization: `Bearer ${token}` } });
     const demandes = await res.json();
-    if (demandes.length === 0) { el.innerHTML = '<p class="etat-vide">Aucune demande pour le moment</p>'; return; }
+    if (demandes.length === 0) { el.innerHTML = '<p class="etat-vide">Aucune demande pour le moment. <a href="#" onclick="document.querySelector(\'[onclick*=nouvelle-demande]\').click()">Soumettre une demande</a></p>'; return; }
     el.innerHTML = demandes.map(d => `
       <div class="annonce-card">
-        <div style="display:flex;justify-content:space-between;align-items:start;">
+        <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:0.5rem;">
           <h3>${echapper(d.sujet)}</h3>
           <span class="badge badge-${d.statut === 'en_attente' ? 'attente' : d.statut === 'en_cours' ? 'cours' : 'resolu'}">${d.statut.replace('_', ' ')}</span>
         </div>
@@ -191,18 +221,21 @@ async function chargerMesDemandes() {
         <small style="color:var(--gris-texte);">${new Date(d.created_at).toLocaleDateString('fr-FR')}</small>
       </div>
     `).join('');
-  } catch { el.innerHTML = '<p class="etat-vide">Erreur</p>'; }
+  } catch { el.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
 }
 
 document.getElementById('form-demande').addEventListener('submit', async (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(e.target));
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.textContent = '...'; btn.disabled = true;
   try {
     const res = await fetch(`${API}/nova/demandes`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(data) });
     const json = await res.json();
-    if (res.ok) { afficherToast('Demande soumise !'); e.target.reset(); chargerMesDemandes(); }
-    else afficherToast(json.erreur, 'erreur');
+    if (res.ok) { afficherToast('Demande soumise avec succès !'); e.target.reset(); }
+    else afficherToast(json.erreur || 'Erreur', 'erreur');
   } catch { afficherToast('Erreur serveur', 'erreur'); }
+  finally { btn.textContent = 'Soumettre'; btn.disabled = false; }
 });
 
 async function chargerDemandesAgent() {
@@ -212,24 +245,38 @@ async function chargerDemandesAgent() {
   try {
     const res = await fetch(`${API}/nova/demandes`, { headers: { Authorization: `Bearer ${token}` } });
     const demandes = await res.json();
-    if (demandes.length === 0) { el.innerHTML = '<p class="etat-vide">Aucune demande reçue</p>'; return; }
-    el.innerHTML = demandes.map(d => `
-      <div class="annonce-card">
-        <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:0.5rem;">
-          <div>
-            <h3>${echapper(d.sujet)}</h3>
-            <p style="font-size:0.85rem;color:var(--gris-texte);">Citoyen: ${echapper(d.citoyen)} — ${new Date(d.created_at).toLocaleDateString('fr-FR')}</p>
-          </div>
-          <select onchange="majStatutDemande(${d.id}, this.value)" style="padding:0.4rem;border-radius:8px;border:1px solid #ddd;">
-            <option value="en_attente" ${d.statut === 'en_attente' ? 'selected' : ''}>En attente</option>
-            <option value="en_cours" ${d.statut === 'en_cours' ? 'selected' : ''}>En cours</option>
-            <option value="resolu" ${d.statut === 'resolu' ? 'selected' : ''}>Résolu</option>
-          </select>
-        </div>
-        <p>${echapper(d.message)}</p>
-      </div>
-    `).join('');
-  } catch { el.innerHTML = '<p class="etat-vide">Erreur</p>'; }
+    if (demandes.length === 0) { el.innerHTML = '<p class="etat-vide">Aucune demande reçue pour le moment</p>'; return; }
+    el.innerHTML = `
+      <table style="width:100%;border-collapse:collapse;background:white;border-radius:12px;overflow:hidden;box-shadow:var(--ombre);">
+        <thead style="background:var(--lagon-500);color:white;">
+          <tr>
+            <th style="padding:1rem;text-align:left;">Référence</th>
+            <th style="padding:1rem;text-align:left;">Citoyen</th>
+            <th style="padding:1rem;text-align:left;">Sujet</th>
+            <th style="padding:1rem;text-align:left;">Date</th>
+            <th style="padding:1rem;text-align:left;">Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${demandes.map((d, i) => `
+            <tr style="border-bottom:1px solid #f0f0f0;">
+              <td style="padding:1rem;font-weight:600;color:var(--corail);">TN-${String(d.id).padStart(3,'0')}</td>
+              <td style="padding:1rem;">${echapper(d.citoyen)}</td>
+              <td style="padding:1rem;">${echapper(d.sujet)}</td>
+              <td style="padding:1rem;font-size:0.85rem;color:var(--gris-texte);">${new Date(d.created_at).toLocaleDateString('fr-FR')}</td>
+              <td style="padding:1rem;">
+                <select onchange="majStatutDemande(${d.id}, this.value)" style="padding:0.4rem;border-radius:8px;border:1px solid #ddd;font-size:0.85rem;">
+                  <option value="en_attente" ${d.statut === 'en_attente' ? 'selected' : ''}>Nouveau</option>
+                  <option value="en_cours" ${d.statut === 'en_cours' ? 'selected' : ''}>En cours</option>
+                  <option value="resolu" ${d.statut === 'resolu' ? 'selected' : ''}>Traité</option>
+                </select>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch { el.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
 }
 
 async function majStatutDemande(id, statut) {
@@ -246,15 +293,18 @@ async function chargerMessagesAgent() {
   try {
     const res = await fetch(`${API}/nova/messages`, { headers: { Authorization: `Bearer ${token}` } });
     const messages = await res.json();
-    if (messages.length === 0) { el.innerHTML = '<p class="etat-vide">Aucun message</p>'; return; }
+    if (messages.length === 0) { el.innerHTML = '<p class="etat-vide">Aucun message reçu</p>'; return; }
     el.innerHTML = messages.map(m => `
       <div class="annonce-card">
-        <h3>✉️ ${echapper(m.nom)} ${m.email ? '— ' + echapper(m.email) : ''}</h3>
+        <div style="display:flex;justify-content:space-between;align-items:start;">
+          <h3>✉️ ${echapper(m.nom)}</h3>
+          <small style="color:var(--gris-texte);">${new Date(m.created_at).toLocaleDateString('fr-FR')}</small>
+        </div>
+        ${m.email ? `<p style="font-size:0.85rem;color:var(--gris-texte);">📧 ${echapper(m.email)}</p>` : ''}
         <p>${echapper(m.message)}</p>
-        <small style="color:var(--gris-texte);">${new Date(m.created_at).toLocaleDateString('fr-FR')}</small>
       </div>
     `).join('');
-  } catch { el.innerHTML = '<p class="etat-vide">Erreur</p>'; }
+  } catch { el.innerHTML = '<p class="etat-vide">Erreur de chargement</p>'; }
 }
 
 async function chargerAPINova() {
@@ -267,21 +317,21 @@ async function chargerAPINova() {
     const data = await res.json();
     const session = data.session;
     const demandes = data.requests;
-    if (sessionInfo) {
-      sessionInfo.textContent = `Vague ${session.current_wave} | ${session.visible_requests_count} demandes | Prochaine vague dans ${session.minutes_until_next_wave} min`;
+    if (sessionInfo && session) {
+      sessionInfo.textContent = `Vague ${session.current_wave} | ${session.visible_requests_count} demandes | Prochaine dans ${session.minutes_until_next_wave} min`;
     }
     if (!demandes || demandes.length === 0) { el.innerHTML = '<p class="etat-vide">Aucune demande disponible</p>'; return; }
     el.innerHTML = demandes.map(d => `
       <div class="demande-api-card">
         <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:0.5rem;">
           <div>
-            <span style="font-size:0.8rem;color:var(--gris-texte);">${echapper(d.request_code)}</span>
+            <span style="font-size:0.8rem;font-weight:600;color:var(--corail);">${echapper(d.request_code)}</span>
             <h3 style="margin:0.3rem 0;">${echapper(d.requester_name)}</h3>
             <span style="font-size:0.8rem;color:var(--gris-texte);">${echapper(d.requester_type)} — ${echapper(d.difficulty)}</span>
           </div>
           <span class="xp-badge">⭐ ${d.xp_total} XP</span>
         </div>
-        <p style="margin:1rem 0;">${echapper(d.message_public)}</p>
+        <p style="margin:1rem 0;line-height:1.6;">${echapper(d.message_public)}</p>
       </div>
     `).join('');
   } catch { el.innerHTML = '<p class="etat-vide">Erreur connexion API Terra Nova</p>'; }

@@ -1,3 +1,4 @@
+cat > public/index.html << 'EOF'
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -11,7 +12,8 @@
 .nav-tab.active{background:var(--corail);color:white;}
 .section{display:none;}.section.active{display:block;}
 .service-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;}
-.service-card{background:white;border-radius:12px;padding:1.5rem;text-align:center;box-shadow:var(--ombre);}
+.service-card{background:white;border-radius:12px;padding:1.5rem;text-align:center;box-shadow:var(--ombre);cursor:pointer;transition:transform 0.2s;}
+.service-card:hover{transform:translateY(-4px);}
 .service-card .icone{font-size:2rem;margin-bottom:0.5rem;}
 .badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.8rem;font-weight:600;}
 .badge-attente{background:#fff3cd;color:#856404;}
@@ -24,11 +26,23 @@
 .role-citoyen{background:#e8f4f8;color:var(--lagon-700);}
 .role-agent{background:#fff3cd;color:#856404;}
 .role-admin{background:#f8d7da;color:#721c24;}
+.topbar-nav{display:flex;gap:0.5rem;align-items:center;}
+.topbar-nav a{text-decoration:none;color:var(--lagon-700);font-size:0.9rem;padding:0.4rem 0.8rem;border-radius:8px;transition:background 0.2s;}
+.topbar-nav a:hover{background:#f0f0f0;}
+.modale-service{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;}
+.modale-service-contenu{background:white;border-radius:16px;padding:2rem;max-width:500px;width:90%;position:relative;}
+.confirmation-contact{background:#d4edda;color:#155724;border-radius:10px;padding:1rem;margin-top:1rem;display:none;}
+@media(max-width:600px){.topbar-nav{display:none;}.service-grid{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
 <body>
 <header class="topbar">
   <div class="brand">Terra<span>Nova</span></div>
+  <nav class="topbar-nav">
+    <a href="#section-services">Services</a>
+    <a href="#section-annonces">Annonces</a>
+    <a href="#section-contact">Contact</a>
+  </nav>
   <nav class="topbar-actions">
     <span id="role-display" class="role-badge role-citoyen hidden"></span>
     <button id="btn-connexion" class="btn-ghost">Connexion</button>
@@ -48,20 +62,23 @@
       </div>
     </div>
     <!-- Services publics -->
-    <div class="dashboard-header"><h2>🏛️ Services de Nova Terra</h2></div>
+    <div class="dashboard-header" id="section-services"><h2>🏛️ Services de Nova Terra</h2></div>
     <div id="liste-services-public" class="service-grid"></div>
     <!-- Annonces publiques -->
-    <div class="dashboard-header" style="margin-top:2rem;"><h2>📢 Annonces municipales</h2></div>
+    <div class="dashboard-header" style="margin-top:2rem;" id="section-annonces"><h2>📢 Annonces municipales</h2></div>
     <div id="liste-annonces-public"></div>
     <!-- Contact public -->
-    <div class="dashboard-header" style="margin-top:2rem;"><h2>✉️ Contacter l'administration</h2></div>
+    <div class="dashboard-header" style="margin-top:2rem;" id="section-contact"><h2>✉️ Contacter l'administration</h2></div>
     <div style="background:white;border-radius:12px;padding:2rem;box-shadow:var(--ombre);">
       <form id="form-contact">
-        <label>Votre nom<input type="text" name="nom" required></label>
+        <label>Votre nom *<input type="text" name="nom" required></label>
         <label>Email<input type="email" name="email"></label>
-        <label>Message<textarea name="message" rows="4" required></textarea></label>
+        <label>Message *<textarea name="message" rows="4" required></textarea></label>
         <button type="submit" class="btn-plein">Envoyer</button>
       </form>
+      <div id="confirmation-contact" class="confirmation-contact">
+        ✅ Votre message a bien été envoyé à l'administration de Terra Nova !
+      </div>
     </div>
   </section>
 
@@ -89,8 +106,8 @@
       <div style="background:white;border-radius:12px;padding:2rem;box-shadow:var(--ombre);">
         <h3>Soumettre une demande</h3>
         <form id="form-demande">
-          <label>Sujet<input type="text" name="sujet" required></label>
-          <label>Message<textarea name="message" rows="4" required></textarea></label>
+          <label>Sujet *<input type="text" name="sujet" required></label>
+          <label>Message *<textarea name="message" rows="4" required></textarea></label>
           <button type="submit" class="btn-plein">Soumettre</button>
         </form>
       </div>
@@ -115,7 +132,7 @@
     </div>
     <div id="api-nova" class="section">
       <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);margin-bottom:1rem;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
           <h3>🌌 Demandes API Terra Nova</h3>
           <span id="session-info" style="font-size:0.85rem;color:var(--gris-texte);"></span>
         </div>
@@ -123,6 +140,14 @@
       <div id="liste-api-nova"></div>
     </div>
   </section>
+
+  <!-- MODALE SERVICE DETAIL -->
+  <div id="modale-service" class="modale-service hidden">
+    <div class="modale-service-contenu">
+      <button onclick="fermerModaleService()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+      <div id="detail-service"></div>
+    </div>
+  </div>
 
   <!-- MODALES AUTH -->
   <div id="modale-auth" class="modale hidden">
@@ -136,6 +161,7 @@
           <p class="erreur" id="erreur-login"></p>
           <button type="submit" class="btn-plein">Se connecter</button>
         </form>
+        <p style="margin-top:1rem;font-size:0.9rem;text-align:center;">Pas encore de compte ? <a href="#" onclick="ouvrirModaleAuth('register')">S'inscrire</a></p>
       </div>
       <div id="formulaire-inscription" class="hidden">
         <h2>Créer un compte citoyen</h2>
@@ -146,6 +172,7 @@
           <p class="erreur" id="erreur-register"></p>
           <button type="submit" class="btn-plein">S'inscrire</button>
         </form>
+        <p style="margin-top:1rem;font-size:0.9rem;text-align:center;">Déjà un compte ? <a href="#" onclick="ouvrirModaleAuth('login')">Se connecter</a></p>
       </div>
     </div>
   </div>
@@ -154,3 +181,4 @@
 <script src="/js/app.js"></script>
 </body>
 </html>
+EOF
