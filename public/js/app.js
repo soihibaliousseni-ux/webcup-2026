@@ -144,7 +144,10 @@ document.getElementById('form-register').addEventListener('submit', async (e) =>
     localStorage.setItem('token', token);
     localStorage.setItem('utilisateur', JSON.stringify(utilisateur));
     document.getElementById('modale-auth').classList.add('hidden');
-    afficherToast('Bienvenue sur Terra Nova !');
+            afficherToast('Bienvenue sur Terra Nova !');
+    if (!localStorage.getItem('onboarding-done')) {
+      setTimeout(() => document.getElementById('modale-onboarding').classList.remove('hidden'), 500);
+    }
     majAffichage();
   } catch { erreurEl.textContent = 'Erreur serveur, réessayez'; }
 });
