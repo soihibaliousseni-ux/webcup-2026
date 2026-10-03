@@ -1009,3 +1009,22 @@ document.getElementById('form-idee') && document.getElementById('form-idee').add
   } catch { afficherToast('Erreur serveur', 'erreur'); }
   finally { btn.textContent = 'Soumettre mon idée'; btn.disabled = false; }
 });
+
+// F71 INSCRIPTION SANS EMAIL
+async function inscriptionSansEmail() {
+  const nom = document.getElementById('nom-simple').value;
+  if (!nom) { afficherToast('Entrez votre prénom', 'erreur'); return; }
+  try {
+    const res = await fetch(`${API}/auth/register-simple`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nom }) });
+    const json = await res.json();
+    if (res.ok) {
+      token = json.token; utilisateur = json.user;
+      localStorage.setItem('token', token);
+      localStorage.setItem('utilisateur', JSON.stringify(utilisateur));
+      document.getElementById('modale-auth').classList.add('hidden');
+      afficherToast(`✅ Compte créé ! ID: ${json.identifiant} | MDP: ${json.mot_de_passe}`);
+      alert(`🔐 Notez vos identifiants :\nIdentifiant : ${json.identifiant}\nMot de passe : ${json.mot_de_passe}`);
+      majAffichage();
+    } else afficherToast(json.erreur || 'Erreur', 'erreur');
+  } catch { afficherToast('Erreur serveur', 'erreur'); }
+}

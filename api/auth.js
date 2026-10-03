@@ -120,5 +120,23 @@ router.post('/otp/verifier', async (req, res) => {
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
 
+// F71 Inscription sans email
+router.post('/register-simple', async (req, res) => {
+  try {
+    const { nom } = req.body;
+    if (!nom) return res.status(400).json({ erreur: 'Nom requis' });
+    const identifiant = 'citoyen_' + Math.random().toString(36).substring(2, 8);
+    const mdp = Math.random().toString(36).substring(2, 10);
+    const hash = await bcrypt.hash(mdp, 10);
+    const email = identifiant + '@terranova.local';
+    const [resultat] = await pool.query(
+      'INSERT INTO users (nom, email, mot_de_passe) VALUES (?, ?, ?)',
+      [nom, email, hash]
+    );
+    const token = jwt.sign({ id: resultat.insertId, email, role: 'citoyen' }, JWT_SECRET, { expiresIn: '7d' });
+    res.status(201).json({ token, user: { id: resultat.insertId, nom, email, role: 'citoyen' }, identifiant, mot_de_passe: mdp, message: '✅ Compte créé ! Notez votre identifiant et mot de passe.' });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
 module.exports = router;
 module.exports.verifierToken = verifierToken;
