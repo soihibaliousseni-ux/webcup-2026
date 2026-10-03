@@ -1,4 +1,4 @@
-cat > api/auth.js << 'EOF'
+
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -66,4 +66,3 @@ function verifierToken(req, res, next) {
 
 module.exports = router;
 module.exports.verifierToken = verifierToken;
-EOF
