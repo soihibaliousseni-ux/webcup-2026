@@ -1102,3 +1102,46 @@ async function repondredemande(id) {
     else afficherToast(json.erreur || 'Erreur', 'erreur');
   } catch { afficherToast('Erreur serveur', 'erreur'); }
 }
+
+// D10 F89 F90 F91 F92 ASSISTANT NOVA IA
+async function interrogerAssistant() {
+  const input = document.getElementById('assistant-input').value;
+  if (!input) return;
+  const el = document.getElementById('assistant-reponse');
+  el.innerHTML = '<p style="color:var(--gris-texte);">🤖 Analyse en cours...</p>';
+  
+  const services = {
+    'passeport|identité|carte|civil|naissance|mariage': { service: 'État Civil', action: 'Soumettez une demande en ligne', icone: '📋' },
+    'construction|permis|bâtiment|logement|terrain|urbanisme': { service: 'Urbanisme', action: 'Consultez le service Urbanisme', icone: '🏗️' },
+    'bus|navette|transport|ligne|horaire|spatioport': { service: 'Transport', action: 'Consultez les horaires dans "Transports"', icone: '🚀' },
+    'médecin|santé|urgence|médical|hôpital|blessé|malade': { service: 'Santé', action: 'Centre Médical Nova Terra — Urgences 24h/24', icone: '🏥' },
+    'école|enfant|scolarité|cours|éducation|classe': { service: 'Éducation', action: 'Contactez le service Éducation', icone: '🎓' },
+    'sécurité|police|danger|vol|agression|urgence': { service: 'Sécurité', action: 'Appelez le 🆘 Nova-112 immédiatement', icone: '🛡️' },
+    'eau|fuite|lampadaire|voirie|déchet|problème|cassé|panne': { service: 'Signalement', action: 'Signalez le problème dans "Signaler"', icone: '🚨' },
+    'rendez-vous|réunion|rencontrer|agent|rendez': { service: 'Rendez-vous', action: 'Prenez rendez-vous dans l\'onglet dédié', icone: '📅' },
+    'projet|vote|idée|consultation|améliorer': { service: 'Projets citoyens', action: 'Participez dans l\'onglet "Projets"', icone: '🏗️' }
+  };
+
+  let trouve = null;
+  const inputLower = input.toLowerCase();
+  for (const [mots, info] of Object.entries(services)) {
+    if (mots.split('|').some(m => inputLower.includes(m))) { trouve = info; break; }
+  }
+
+  if (trouve) {
+    el.innerHTML = `
+      <div style="background:#f0f8ff;border-radius:10px;padding:1rem;border-left:4px solid var(--lagon-500);">
+        <p style="font-weight:600;">${trouve.icone} Service recommandé : <strong>${trouve.service}</strong></p>
+        <p style="margin-top:0.5rem;color:var(--gris-texte);">➡️ ${trouve.action}</p>
+        <button onclick="ouvrirModaleAuth('login')" class="btn-plein" style="margin-top:0.8rem;width:100%;">Accéder à mon espace →</button>
+      </div>`;
+  } else {
+    el.innerHTML = `
+      <div style="background:#fff3cd;border-radius:10px;padding:1rem;border-left:4px solid #f39c12;">
+        <p>🤖 Je n'ai pas trouvé de service exact. Voici ce que vous pouvez faire :</p>
+        <p style="margin-top:0.5rem;">📋 Soumettez une demande libre — un agent vous orientera</p>
+        <p>✉️ Ou contactez directement l'administration via le formulaire contact</p>
+        <button onclick="ouvrirModaleAuth('login')" class="btn-plein" style="margin-top:0.8rem;width:100%;">Créer une demande →</button>
+      </div>`;
+  }
+}

@@ -119,7 +119,15 @@ body.mode-eco *{transition:none!important;animation:none!important;}
       <span class="glossaire-tooltip" data-def="Personne travaillant pour les services municipaux">Agent municipal</span> —
       <span class="glossaire-tooltip" data-def="Information importante diffusée par la mairie">Annonce municipale</span>
     </div>
-    <div class="dashboard-header" id="section-services"><h2>🏛️ Services de Nova Terra</h2></div>
+   <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);margin-bottom:1rem;">
+  <h3>🤖 Assistant Nova — Comment puis-je vous aider ?</h3>
+  <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+    <input type="text" id="assistant-input" placeholder="Ex: je veux un passeport, signaler une fuite d'eau..." style="flex:1;padding:0.7rem;border:1px solid #ddd;border-radius:8px;font-family:Inter,sans-serif;">
+    <button onclick="interrogerAssistant()" class="btn-plein">Chercher</button>
+  </div>
+  <div id="assistant-reponse" style="margin-top:1rem;"></div>
+</div>
+<div class="dashboard-header" id="section-services"><h2>🏛️ Services de Nova Terra</h2></div>
     <div id="liste-services-public" class="service-grid"></div>
     <div class="dashboard-header" style="margin-top:2rem;" id="section-annonces"><h2>📢 Annonces municipales</h2></div>
     <div id="liste-annonces-public"></div>
