@@ -69,6 +69,15 @@ body.mode-eco .service-card{box-shadow:none!important;border:1px solid #ddd!impo
 body.mode-eco *{transition:none!important;animation:none!important;}
 @media(max-width:600px){.topbar-nav{display:none;}.service-grid{grid-template-columns:1fr 1fr;}.topbar-access{display:none;}}
 </style>
+<script>
+window.addEventListener('offline', () => {
+  const el = document.getElementById('banniere-alertes');
+  if (el) el.innerHTML = '<div class="alerte-banniere alerte-urgence" role="alert"><div>⚠️ Connexion perdue — Mode hors-ligne. Informations essentielles ci-dessous.</div></div>' + el.innerHTML;
+  const zo = document.getElementById('zone-offline');
+  if (zo) zo.style.display = 'block';
+});
+window.addEventListener('online', () => { location.reload(); });
+</script>
 </head>
 <body>
 <header class="topbar" role="banner">
@@ -97,6 +106,13 @@ body.mode-eco *{transition:none!important;animation:none!important;}
 </header>
 <main role="main">
   <div id="banniere-alertes" aria-live="assertive"></div>
+<div id="zone-offline" style="display:none;background:#fff3cd;border-radius:12px;padding:1.5rem;margin:1rem 0;">
+  <h3>📵 Mode hors-ligne — Informations essentielles</h3>
+  <p>🚨 Urgences : <strong>Nova-112</strong></p>
+  <p>🏥 Centre Médical : Secteur Santé, Zone A — 24h/24</p>
+  <p>🛡️ Sécurité : Zone Ouest — 24h/24</p>
+  <p>🏛️ Mairie : Centre Civique — Lun-Ven 8h-17h</p>
+</div>
   <div id="banniere-eco" style="display:none;background:#d4edda;color:#155724;padding:0.5rem 1.5rem;font-size:0.85rem;font-weight:600;">
     🌱 Mode éco activé — Plateforme allégée pour connexions lentes
   </div>
