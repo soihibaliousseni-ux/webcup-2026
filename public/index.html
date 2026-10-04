@@ -5,11 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Terra Nova — Plateforme Numérique</title>
 <link rel="stylesheet" href="/css/style.css">
-body.mode-sombre{background:#1a1a2e!important;color:#e0e0e0!important;}
-body.mode-sombre .service-card,body.mode-sombre .annonce-card,body.mode-sombre .stat-card,body.mode-sombre .transport-card,body.mode-sombre .rdv-card,body.mode-sombre .audit-card,body.mode-sombre .annonce-card{background:#16213e!important;color:#e0e0e0!important;border:1px solid #0f3460;}
-body.mode-sombre .topbar{background:#0f3460!important;}
-body.mode-sombre .nav-tab{background:#16213e!important;color:#e0e0e0!important;}
-body.mode-sombre input,body.mode-sombre textarea,body.mode-sombre select{background:#16213e!important;color:#e0e0e0!important;border-color:#0f3460!important;}
 <style>
 .nav-tabs{display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
 .nav-tab{padding:0.5rem 1rem;border:none;border-radius:8px;cursor:pointer;background:#f0f0f0;font-family:Inter,sans-serif;}
@@ -72,13 +67,13 @@ body.mode-eco .annonce-card,body.mode-eco .transport-card,body.mode-eco .rdv-car
 body.mode-eco img{display:none!important;}
 body.mode-eco .service-card{box-shadow:none!important;border:1px solid #ddd!important;}
 body.mode-eco *{transition:none!important;animation:none!important;}
-@media(max-width:600px){.topbar-nav{display:none;}.service-grid{grid-template-columns:1fr 1fr;}.topbar-access{display:none;}}
 body.mode-sombre{background:#1a1a2e!important;color:#e0e0e0!important;}
 body.mode-sombre .service-card,body.mode-sombre .annonce-card,body.mode-sombre .stat-card,body.mode-sombre .transport-card,body.mode-sombre .rdv-card,body.mode-sombre .audit-card{background:#16213e!important;color:#e0e0e0!important;border:1px solid #0f3460;}
 body.mode-sombre .topbar{background:#0f3460!important;}
 body.mode-sombre .nav-tab{background:#16213e!important;color:#e0e0e0!important;}
 body.mode-sombre input,body.mode-sombre textarea,body.mode-sombre select{background:#16213e!important;color:#e0e0e0!important;border-color:#0f3460!important;}
 body.mode-sombre p,body.mode-sombre h1,body.mode-sombre h2,body.mode-sombre h3,body.mode-sombre h4{color:#e0e0e0!important;}
+@media(max-width:600px){.topbar-nav{display:none;}.service-grid{grid-template-columns:1fr 1fr;}.topbar-access{display:none;}}
 </style>
 <script>
 window.addEventListener('offline', () => {
@@ -107,7 +102,7 @@ window.addEventListener('online', () => { location.reload(); });
     <button onclick="toggleContraste()" class="btn-access" id="btn-contraste" aria-label="Activer le contraste élevé" title="Contraste élevé">◐</button>
     <button onclick="toggleDaltonien()" class="btn-access" id="btn-dalton" aria-label="Mode daltonien" title="Mode daltonien">◑</button>
     <button onclick="toggleEco()" class="btn-access" id="btn-eco" aria-label="Mode éco connexion lente" title="Mode éco">🌱</button>
-<button onclick="toggleModeSombre()" class="btn-access" id="btn-sombre" aria-label="Mode sombre" title="Mode sombre">🌙</button>
+    <button onclick="toggleModeSombre()" class="btn-access" id="btn-sombre" aria-label="Mode sombre" title="Mode sombre">🌙</button>
   </div>
   <nav class="topbar-actions" role="navigation" aria-label="Compte utilisateur">
     <span id="role-display" class="role-badge role-citoyen hidden" aria-live="polite"></span>
@@ -118,13 +113,13 @@ window.addEventListener('online', () => { location.reload(); });
 </header>
 <main role="main">
   <div id="banniere-alertes" aria-live="assertive"></div>
-<div id="zone-offline" style="display:none;background:#fff3cd;border-radius:12px;padding:1.5rem;margin:1rem 0;">
-  <h3>📵 Mode hors-ligne — Informations essentielles</h3>
-  <p>🚨 Urgences : <strong>Nova-112</strong></p>
-  <p>🏥 Centre Médical : Secteur Santé, Zone A — 24h/24</p>
-  <p>🛡️ Sécurité : Zone Ouest — 24h/24</p>
-  <p>🏛️ Mairie : Centre Civique — Lun-Ven 8h-17h</p>
-</div>
+  <div id="zone-offline" style="display:none;background:#fff3cd;border-radius:12px;padding:1.5rem;margin:1rem 0;">
+    <h3>📵 Mode hors-ligne — Informations essentielles</h3>
+    <p>🚨 Urgences : <strong>Nova-112</strong></p>
+    <p>🏥 Centre Médical : Secteur Santé, Zone A — 24h/24</p>
+    <p>🛡️ Sécurité : Zone Ouest — 24h/24</p>
+    <p>🏛️ Mairie : Centre Civique — Lun-Ven 8h-17h</p>
+  </div>
   <div id="banniere-eco" style="display:none;background:#d4edda;color:#155724;padding:0.5rem 1.5rem;font-size:0.85rem;font-weight:600;">
     🌱 Mode éco activé — Plateforme allégée pour connexions lentes
   </div>
@@ -147,47 +142,47 @@ window.addEventListener('online', () => { location.reload(); });
       <span class="glossaire-tooltip" data-def="Personne travaillant pour les services municipaux">Agent municipal</span> —
       <span class="glossaire-tooltip" data-def="Information importante diffusée par la mairie">Annonce municipale</span>
     </div>
-<div style="background:linear-gradient(135deg,#0f3460,#1c6b7a);border-radius:12px;padding:1.5rem;margin-bottom:1rem;color:white;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-    <h3 style="color:white;margin:0;">🌌 État de Terra Nova — En direct</h3>
-    <span style="font-size:0.75rem;opacity:0.7;">Données de démonstration — mise à jour simulée</span>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;">
-    <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
-      <div style="font-size:1.5rem;font-weight:700;">12 480</div>
-      <div style="font-size:0.8rem;opacity:0.8;">👥 Habitants actifs</div>
+    <div style="background:linear-gradient(135deg,#0f3460,#1c6b7a);border-radius:12px;padding:1.5rem;margin-bottom:1rem;color:white;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+        <h3 style="color:white;margin:0;">🌌 État de Terra Nova — En direct</h3>
+        <span style="font-size:0.75rem;opacity:0.7;">Données de démonstration — mise à jour simulée</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;">
+        <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
+          <div style="font-size:1.5rem;font-weight:700;">12 480</div>
+          <div style="font-size:0.8rem;opacity:0.8;">👥 Habitants actifs</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
+          <div style="font-size:1.5rem;font-weight:700;">Bonne</div>
+          <div style="font-size:0.8rem;opacity:0.8;">🌿 Qualité de l'air</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
+          <div style="font-size:1.5rem;font-weight:700;">84%</div>
+          <div style="font-size:0.8rem;opacity:0.8;">☀️ Énergie solaire</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
+          <div style="font-size:1.5rem;font-weight:700;">72%</div>
+          <div style="font-size:0.8rem;opacity:0.8;">💧 Réserves d'eau</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
+          <div style="font-size:1.5rem;font-weight:700;">8</div>
+          <div style="font-size:0.8rem;opacity:0.8;">🚀 Navettes actives</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
+          <div style="font-size:1.5rem;font-weight:700;color:#2ecc71;">Normal</div>
+          <div style="font-size:0.8rem;opacity:0.8;">🛡️ Niveau d'alerte</div>
+        </div>
+      </div>
     </div>
-    <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
-      <div style="font-size:1.5rem;font-weight:700;">Bonne</div>
-      <div style="font-size:0.8rem;opacity:0.8;">🌿 Qualité de l'air</div>
+    <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);margin-bottom:1rem;">
+      <h3>🤖 Assistant Nova — Comment puis-je vous aider ?</h3>
+      <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+        <input type="text" id="assistant-input" placeholder="Ex: je veux un passeport, signaler une fuite d'eau..." style="flex:1;padding:0.7rem;border:1px solid #ddd;border-radius:8px;font-family:Inter,sans-serif;">
+        <button onclick="interrogerAssistant()" class="btn-plein">Chercher</button>
+      </div>
+      <div id="assistant-reponse" style="margin-top:1rem;"></div>
     </div>
-    <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
-      <div style="font-size:1.5rem;font-weight:700;">84%</div>
-      <div style="font-size:0.8rem;opacity:0.8;">☀️ Énergie solaire</div>
-    </div>
-    <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
-      <div style="font-size:1.5rem;font-weight:700;">72%</div>
-      <div style="font-size:0.8rem;opacity:0.8;">💧 Réserves d'eau</div>
-    </div>
-    <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
-      <div style="font-size:1.5rem;font-weight:700;">8</div>
-      <div style="font-size:0.8rem;opacity:0.8;">🚀 Navettes actives</div>
-    </div>
-    <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
-      <div style="font-size:1.5rem;font-weight:700;color:#2ecc71;">Normal</div>
-      <div style="font-size:0.8rem;opacity:0.8;">🛡️ Niveau d'alerte</div>
-    </div>
-  </div>
-</div>
-   <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);margin-bottom:1rem;">
-  <h3>🤖 Assistant Nova — Comment puis-je vous aider ?</h3>
-  <div style="display:flex;gap:0.5rem;margin-top:1rem;">
-    <input type="text" id="assistant-input" placeholder="Ex: je veux un passeport, signaler une fuite d'eau..." style="flex:1;padding:0.7rem;border:1px solid #ddd;border-radius:8px;font-family:Inter,sans-serif;">
-    <button onclick="interrogerAssistant()" class="btn-plein">Chercher</button>
-  </div>
-  <div id="assistant-reponse" style="margin-top:1rem;"></div>
-</div>
-<div class="dashboard-header" id="section-services"><h2>🏛️ Services de Nova Terra</h2></div>
+    <div class="dashboard-header" id="section-services"><h2>🏛️ Services de Nova Terra</h2></div>
     <div id="liste-services-public" class="service-grid"></div>
     <div class="dashboard-header" style="margin-top:2rem;" id="section-annonces"><h2>📢 Annonces municipales</h2></div>
     <div id="liste-annonces-public"></div>
@@ -339,7 +334,7 @@ window.addEventListener('online', () => { location.reload(); });
               <option>Voirie abîmée</option>
               <option>Déchets non collectés</option>
               <option>Problème d'eau</option>
-<option>🚨 Urgence médicale</option>
+              <option>🚨 Urgence médicale</option>
               <option>Sécurité</option>
               <option>Autre</option>
             </select>
