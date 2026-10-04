@@ -1147,3 +1147,19 @@ async function interrogerAssistant() {
       </div>`;
   }
 }
+
+// BONUS Auto-refresh alertes 30s
+setInterval(() => { chargerAlertes(); }, 30000);
+
+// BONUS Mode sombre
+function toggleModeSombre() {
+  document.body.classList.toggle('mode-sombre');
+  const btn = document.getElementById('btn-sombre');
+  const actif = document.body.classList.contains('mode-sombre');
+  btn.classList.toggle('actif', actif);
+  localStorage.setItem('mode-sombre', actif);
+  afficherToast(actif ? '🌙 Mode sombre activé' : '☀️ Mode clair activé');
+}
+if (localStorage.getItem('mode-sombre') === 'true') {
+  document.body.classList.add('mode-sombre');
+}

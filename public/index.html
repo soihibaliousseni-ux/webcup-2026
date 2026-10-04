@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Terra Nova — Plateforme Numérique</title>
 <link rel="stylesheet" href="/css/style.css">
+body.mode-sombre{background:#1a1a2e!important;color:#e0e0e0!important;}
+body.mode-sombre .service-card,body.mode-sombre .annonce-card,body.mode-sombre .stat-card,body.mode-sombre .transport-card,body.mode-sombre .rdv-card,body.mode-sombre .audit-card,body.mode-sombre .annonce-card{background:#16213e!important;color:#e0e0e0!important;border:1px solid #0f3460;}
+body.mode-sombre .topbar{background:#0f3460!important;}
+body.mode-sombre .nav-tab{background:#16213e!important;color:#e0e0e0!important;}
+body.mode-sombre input,body.mode-sombre textarea,body.mode-sombre select{background:#16213e!important;color:#e0e0e0!important;border-color:#0f3460!important;}
 <style>
 .nav-tabs{display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
 .nav-tab{padding:0.5rem 1rem;border:none;border-radius:8px;cursor:pointer;background:#f0f0f0;font-family:Inter,sans-serif;}
@@ -96,6 +101,8 @@ window.addEventListener('online', () => { location.reload(); });
     <button onclick="toggleContraste()" class="btn-access" id="btn-contraste" aria-label="Activer le contraste élevé" title="Contraste élevé">◐</button>
     <button onclick="toggleDaltonien()" class="btn-access" id="btn-dalton" aria-label="Mode daltonien" title="Mode daltonien">◑</button>
     <button onclick="toggleEco()" class="btn-access" id="btn-eco" aria-label="Mode éco connexion lente" title="Mode éco">🌱</button>
+<button onclick="toggleModeSombre()" class="btn-access" id="btn-sombre" aria-label="Mode sombre" title="Mode sombre">🌙</button>
+<button onclick="toggleModeSombre()" class="btn-access" id="btn-sombre" aria-label="Mode sombre" title="Mode sombre">🌙</button>
   </div>
   <nav class="topbar-actions" role="navigation" aria-label="Compte utilisateur">
     <span id="role-display" class="role-badge role-citoyen hidden" aria-live="polite"></span>
@@ -135,6 +142,38 @@ window.addEventListener('online', () => { location.reload(); });
       <span class="glossaire-tooltip" data-def="Personne travaillant pour les services municipaux">Agent municipal</span> —
       <span class="glossaire-tooltip" data-def="Information importante diffusée par la mairie">Annonce municipale</span>
     </div>
+<div style="background:linear-gradient(135deg,#0f3460,#1c6b7a);border-radius:12px;padding:1.5rem;margin-bottom:1rem;color:white;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+    <h3 style="color:white;margin:0;">🌌 État de Terra Nova — En direct</h3>
+    <span style="font-size:0.75rem;opacity:0.7;">Données de démonstration — mise à jour simulée</span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;">
+    <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
+      <div style="font-size:1.5rem;font-weight:700;">12 480</div>
+      <div style="font-size:0.8rem;opacity:0.8;">👥 Habitants actifs</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
+      <div style="font-size:1.5rem;font-weight:700;">Bonne</div>
+      <div style="font-size:0.8rem;opacity:0.8;">🌿 Qualité de l'air</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
+      <div style="font-size:1.5rem;font-weight:700;">84%</div>
+      <div style="font-size:0.8rem;opacity:0.8;">☀️ Énergie solaire</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
+      <div style="font-size:1.5rem;font-weight:700;">72%</div>
+      <div style="font-size:0.8rem;opacity:0.8;">💧 Réserves d'eau</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
+      <div style="font-size:1.5rem;font-weight:700;">8</div>
+      <div style="font-size:0.8rem;opacity:0.8;">🚀 Navettes actives</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:1rem;text-align:center;">
+      <div style="font-size:1.5rem;font-weight:700;color:#2ecc71;">Normal</div>
+      <div style="font-size:0.8rem;opacity:0.8;">🛡️ Niveau d'alerte</div>
+    </div>
+  </div>
+</div>
    <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:var(--ombre);margin-bottom:1rem;">
   <h3>🤖 Assistant Nova — Comment puis-je vous aider ?</h3>
   <div style="display:flex;gap:0.5rem;margin-top:1rem;">
