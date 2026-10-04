@@ -319,4 +319,14 @@ router.post('/demandes/:id/reponse', verifierToken, async (req, res) => {
   } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
 });
 
+// F97 Transport interrompu
+router.post('/transports/:id/statut', verifierToken, async (req, res) => {
+  try {
+    if (req.user.role === 'citoyen') return res.status(403).json({ erreur: 'Accès refusé' });
+    const { statut, message_alerte } = req.body;
+    await pool.query('UPDATE transports SET statut = ?, message_alerte = ? WHERE id = ?', [statut, message_alerte || null, req.params.id]);
+    res.json({ message: '✅ Statut transport mis à jour !' });
+  } catch (err) { res.status(500).json({ erreur: 'Erreur serveur' }); }
+});
+
 module.exports = router;

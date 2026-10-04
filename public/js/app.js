@@ -621,10 +621,12 @@ async function chargerTransports() {
             <p style="color:var(--gris-texte);font-size:0.9rem;">📍 ${echapper(t.destination)}</p>
           </div>
           <span class="badge badge-cours">${echapper(t.type)}</span>
+${t.statut && t.statut !== 'actif' ? `<span class="badge badge-attente">⚠️ Interrompu</span>` : ''}
         </div>
         <div style="margin-top:1rem;padding:0.8rem;background:#f8f9fa;border-radius:8px;">
           <p style="font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">🕐 Horaires :</p>
           <p style="font-size:0.9rem;">${echapper(t.horaires)}</p>
+${t.message_alerte ? `<p style="font-size:0.85rem;color:#c0392b;margin-top:0.5rem;">⚠️ ${echapper(t.message_alerte)}</p>` : ''}
         </div>
       </div>
     `).join('');
